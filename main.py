@@ -5,18 +5,17 @@ import ubinascii
 import machine
 
 
-
-network_ssid = 'home'
-network_psk  = 'Garuda180'
-
-
 client_id = 'esp8266-light' + ubinascii.hexlify(machine.unique_id()).decode('utf-8')
-state_topic   = 'home/woonkamer/tafel'
-command_topic = 'home/woonkamer/tafel/set'
+command_topic = 'mqtt/command/topic/set' #enter valid opic
+state_topic =   'mqtt/state/topic'       #enter valid topic
+
+network_ssid = 'network_ssid' #replace with your own ssid
+network_psk  = 'psk' #replace with your own psk
+
+mqtt_server_ip   = '10.0.0.1' #replace with your own
+mqtt_server_port = 1883       #probably no need to adjust
 
 
-mqtt_server_ip   = '192.168.1.10'
-mqtt_server_port = 1883
 
 
 def network_start():
@@ -36,182 +35,84 @@ def network_start():
 time.sleep(2)
 
 
+
+
+
 class led_pwm():
-    
     def __init__(self, pin):
         if pin not in (0, 2, 4, 5, 12, 13, 14, 15,):
             raise ValueError ("pin must be 0, 2, 4, 5, 12, 13, 14, or 15")
-        self._pwm_device =  machine.PWM(machine.Pin(pin, machine.Pin.OUT))
-        self.val = None
-        self.on = False
+        self._pwm_device =  machine.PWM(machine.Pin(pin, machine.Pin.OUT), freq = 400, duty = 255)
+        self.val = 0
+        self._pwm_device.duty(0)
+        self.is_on = False
 
     def value(self, value = None):
         if value == None:
             return self.val
-        if  value != max(min(1, value),0):
-            raise ValueError ('value must be between 0 and 1')
-        self.val = value
-        if value == 0:
-            self.on = False
-        else:
-            self.on = True
-        self._pwm_device.duty(int(value*1023))
+        if  value != max(min(255, value),0):
+            raise ValueError ('value must be between 0 and 255')
+        if self.val != value:
+            self.val = value
+            if value == 0:
+                self.on = False
+            else:
+                self.on = True
+            self._pwm_device.duty(int(value*255))
         return self.val
         
     def on(self):
-        self.value(1)
+        self.value(255)
 
     def off(self):
         self.value(0)
-        
 
-
-
-
-class lightstrip():
-
-
-    def __init__(self, stop = state_topic, ctop = command_topic):
-        self.state_topic   = stop
-        self.command_topic = ctop
-        self.is_on = False
-        self.powerstate = 'OFF'
-        self.color = (255,255,255)      # r g b
-        self.white = 0
-        self.brightness = 255
-        self.state = None
-        s = json.loads(self._write_read())
-        print('file content', s)
-        self.set_state(s)
-#        self.update_state()
-#        self.set_state(json.loads(self._write_read()))
-#        self._set_led_pins()
-
-        print('state topic:   ', self.state_topic)
-        print('command toppic:', self.command_topic)
-        print('current state :', self.state) 
-
-        self.light_client = MQTTClient(client_id, mqtt_server_ip)
-        print('connected to', mqtt_server_ip, 'as', client_id)
-        self.light_client.set_callback(self._mqtt_on_message)
-        self.light_client.connect()
-        self.light_client.subscribe(self.command_topic)
-        
-        self._mqtt_publish_state()
-
-        while True:
-            self.light_client.wait_msg()
-#            print('I got a message')
-        
-
-    def _mqtt_on_message(self, topic, msg):
-#        print('recieved:  ', topic.decode('utf-8'), msg.decode('utf-8'))
-        self.set_state(json.loads(msg.decode('utf-8')))
-        self._mqtt_publish_state()
-#        time.sleep(1)    
-
-    def _mqtt_publish_state(self):
-        self.update_state()
-#        print('status msg:', json.dumps(self.state))
-        self.light_client.publish(self.state_topic, json.dumps(self.state),0,True)
-
-    # get_state and set_state implement the homeassistant mqtt_jason api
-    # see https://home-assistant.io/components/light.mqtt_json/ for more
-    # information
-
-    def _write_read(self, str = None):
-        response = None
-        if str == None:
-            f = open('light_state.conf')
-            response = f.read()
-            print('read', response)
-            f.close()
-        else:
-            f = open('light_state.conf', 'w')
-            f.write(str)
-            f.close()
-        return response    
-
-
-    def update_state(self):
-        self.state = {'brightness':self.brightness,
-                    # 'color_temp: None,
-                      'color':{'r':self.color[0],
-                               'g':self.color[1],
-                               'b':self.color[2]
-                               },
-                    # 'effect': self.effect,
-                      'state': self.powerstate,
+class led_control():
+    def __init__(self):
+        self.state = {'brightness': 255,
+                     # 'color_temp: None,
+                           'color':{'r':0,
+                                    'g':0,
+                                    'b':0
+                                    },
+                        # 'effect': effect,
+                           'state': 'OFF',
                     # 'transition': None,
-                      'white_value': self.white
+                     'white_value': 0
                       }
-        self._write_read(json.dumps(self.state))
+        self.red_led   = led_pwm(14)
+        self.green_led = led_pwm(12)
+        self.blue_led  = led_pwm(13)
+        self.white_led = led_pwm(15)
 
-    def set_state(self, payload):
-#        print('payload', payload)
-        for k, v in payload.items():
-            if k == 'state':
-                if v == 'ON':
-                    self.turn_on()
-                else:
-                    self.turn_off()
-            elif k == 'color':
-                self.set_rgb(v)
-            elif k == 'brightness':
-                self.set_brightness(v)
-            elif k == 'white_value':
-                self.set_white(v)
-            # these parts of the API have not been implemented yet
-            elif k == 'color_temp':
-                pass
-            elif k == 'effect':
-                pass
-            elif k == 'transition':
-                pass
+    def set_state(self, key, value):
+        if self.state[key] != value:
+            self.state[key] = value
+ 
+    def update_led(self, state = None):
+        if state == None:
+            state = self.state
+        R = state['color']['r']
+        G = state['color']['g']
+        B = state['color']['b']
+        HSV = RGB_2_HSV((R,G,B))
+        R, G, B = HSV_2_RGB((HSV[0],HSV[1],state['brightness']))
 
-    def turn_on(self):
-        self.powerstate = 'ON'
-        self.is_on = True
-        # turn on controller
+        if self.state['state'] == 'ON':
+            self.red_led.value(R)
+            self.green_led.value(G)
+            self.blue_led.value(B)
+            self.white_led.value(state['white_value'])
 
-    def turn_off(self):
-        self.powerstate = 'OFF'
-        self.is_on = False
-        # turn off controller
+        else:
+            self.red_led.value(0)
+            self.green_led.value(0)
+            self.blue_led.value(0)
+            self.white_led.value(0)
 
-    def set_rgb(self, rgb):
-        self.color = (rgb['r'],rgb['g'],rgb['b'])
-        self._set_led_pins(rgb = (self.color))
-        
-    def set_white(self, w):
-        self.white = w
-        self._set_led_pins(white = w)
+        print('led states', 'rgb', (self.red_led.val, self.green_led.val, self.blue_led.val),
+          'w', self.white_led.val) 
 
-    def set_brightness(self, level):
-        self.brightness = level
-        self._set_led_pins(brightness = level)
-
-    def _set_led_pins(self, rgb = None, white = None, brightness = None):
-        '''calculate pin values based on rgb, w and brightness values'''
-        if rgb == None:
-            rgb = self.color
-        if white == None:
-            white = self.white
-        if brightness == None:
-            brightness = self.brightness
-        # convert the rgb colors 
-        hsv = RGB_2_HSV(rgb)
-        rgb = HSV_2_RGB((hsv[0], hsv[1], brightness))
-        # dim white 
-        white = brightness
-#        print(rgb, white, brightness)
-
-        pin_red.value(rgb[0]/255)
-        pin_green.value(rgb[1]/255)
-        pin_blue.value(rgb[2]/255)
-        pin_white.value(white/255)
-
-#        print('pin values:','color', rgb, 'white', white, 'brightness', brightness) 
 
 
 def RGB_2_HSV(RGB):
@@ -308,14 +209,33 @@ def HSV_2_RGB(HSV):
 
     return (R, G, B)
 
-    
-if __name__ == '__main__':
-    pin_red     = led_pwm(14)
-    pin_green   = led_pwm(12)
-    pin_blue    = led_pwm(13)
-    pin_white   = led_pwm(15)
 
 
-    network_start()    
-    light = lightstrip()
- 
+
+def mqtt_on_message(topic, msg):
+    valid_responses = ('state',
+                       'brightness',
+                       'color',
+                       'white_value'
+                       )
+    response = json.loads(msg.decode('utf-8'))
+    print(topic.decode('utf-8'), response)
+    for k, v in response.items():
+        if k in valid_response:
+            led.set_state(k,v)
+    led.update_led()
+   
+
+network_start()    
+light_client = MQTTClient(client_id, mqtt_server_ip)
+light_client.set_callback(mqtt_on_message)
+light_client.connect()
+light_client.subscribe(command_topic)
+
+led = led_control()
+
+while True:
+    light_client.publish(state_topic, json.dumps(led.state),0,True)
+    print('return:', led.state)
+    light_client.wait_msg()
+    time.sleep_ms(100)
