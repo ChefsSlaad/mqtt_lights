@@ -6,14 +6,15 @@ import machine
 
 
 client_id = 'esp8266-light' + ubinascii.hexlify(machine.unique_id()).decode('utf-8')
-command_topic = 'mqtt/command/topic/set' #enter valid opic
-state_topic =   'mqtt/state/topic'       #enter valid topic
+command_topic = 'home/woonkamer/tafel/set'
+state_topic =   'home/woonkamer/tafel'
 
-network_ssid = 'network_ssid' #replace with your own ssid
-network_psk  = 'psk' #replace with your own psk
+network_ssid = 'home'
+network_psk  = 'Garuda180'
 
-mqtt_server_ip   = '10.0.0.1' #replace with your own
-mqtt_server_port = 1883       #probably no need to adjust
+mqtt_server_ip   = '192.168.1.10'
+mqtt_server_port = 1883
+
 
 
 
@@ -239,3 +240,5 @@ while True:
     print('return:', led.state)
     light_client.wait_msg()
     time.sleep_ms(100)
+
+
