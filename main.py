@@ -9,10 +9,10 @@ client_id = 'esp8266-light' + ubinascii.hexlify(machine.unique_id()).decode('utf
 command_topic = 'home/woonkamer/tafel/set'
 state_topic =   'home/woonkamer/tafel'
 
-network_ssid = 'home'
-network_psk  = 'Garuda180'
+network_ssid = 'my_ssid'
+network_psk  = 'my_pwd'
 
-mqtt_server_ip   = '192.168.1.10'
+mqtt_server_ip   = 'my_ip'
 mqtt_server_port = 1883
 
 
