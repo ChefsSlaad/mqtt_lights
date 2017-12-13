@@ -6,44 +6,19 @@ import machine
 
 
 client_id = 'esp8266-light' + ubinascii.hexlify(machine.unique_id()).decode('utf-8')
-command_topic = 'home/woonkamer/tafel/set'
-state_topic =   'home/woonkamer/tafel'
+command_topic = 'home/woonkamer/gordijn_lang/set'
+state_topic =   'home/woonkamer/gordijn_lang'
 
-network_ssid = 'my_ssid'
-network_psk  = 'my_pwd'
-
-mqtt_server_ip   = 'my_ip'
+mqtt_server_ip   = '192.168.1.10'
 mqtt_server_port = 1883
-
-
-
-
-
-def network_start():
-    print('starting network')
-    import network
-    import webrepl
-    accesspoint = network.WLAN(network.AP_IF)   
-    station = network.WLAN(network.STA_IF)
-    station.active(True)
-    station.connect(network_ssid, network_psk)
-    if station.active():
-        accesspoint.active(False)
-        print('accesspoint mode deactivated')
-        print(station.ifconfig())
-    webrepl.start()
-    print('waiting for connection')
-time.sleep(2)
-
-
-
+retries = 0
 
 
 class led_pwm():
     def __init__(self, pin):
         if pin not in (0, 2, 4, 5, 12, 13, 14, 15,):
             raise ValueError ("pin must be 0, 2, 4, 5, 12, 13, 14, or 15")
-        self._pwm_device =  machine.PWM(machine.Pin(pin, machine.Pin.OUT), freq = 400, duty = 255)
+        self._pwm_device =  machine.PWM(machine.Pin(pin, machine.Pin.OUT), freq = 400, duty = 0)
         self.val = 0
         self._pwm_device.duty(0)
         self.is_on = False
@@ -59,7 +34,7 @@ class led_pwm():
                 self.on = False
             else:
                 self.on = True
-            self._pwm_device.duty(int(value*255))
+            self._pwm_device.duty(int(value*4))
         return self.val
         
     def on(self):
@@ -81,10 +56,10 @@ class led_control():
                     # 'transition': None,
                      'white_value': 0
                       }
-        self.red_led   = led_pwm(14)
-        self.green_led = led_pwm(12)
-        self.blue_led  = led_pwm(13)
-        self.white_led = led_pwm(15)
+        self.red_led   = led_pwm(15)
+        self.green_led = led_pwm(13)
+        self.blue_led  = led_pwm(12)
+        self.white_led = led_pwm(14)
 
     def set_state(self, key, value):
         if self.state[key] != value:
@@ -212,7 +187,6 @@ def HSV_2_RGB(HSV):
 
 
 
-
 def mqtt_on_message(topic, msg):
     valid_responses = ('state',
                        'brightness',
@@ -222,23 +196,63 @@ def mqtt_on_message(topic, msg):
     response = json.loads(msg.decode('utf-8'))
     print(topic.decode('utf-8'), response)
     for k, v in response.items():
-        if k in valid_response:
+        if k in valid_responses:
             led.set_state(k,v)
     led.update_led()
-   
 
-network_start()    
-light_client = MQTTClient(client_id, mqtt_server_ip)
-light_client.set_callback(mqtt_on_message)
-light_client.connect()
-light_client.subscribe(command_topic)
 
+def mqtt_check_message():
+    try:
+        mqtt_client.check_msg()
+    except OSError:
+        mqtt_connect_and_subscribe()
+
+
+def mqtt_wait_message():
+    try:
+        mqtt_client.wait_msg()
+    except OSError:
+        mqtt_connect_and_subscribe()
+       
+
+def mqtt_send_message(topic, message):
+    tpc = topic
+    msg = message
+    try:
+        mqtt_client.publish(tpc, msg,0,True)
+        print('topic {}, message {}'.format(topic, message))  
+    except OSError:
+        mqtt_connect_and_subscribe()
+
+
+def mqtt_connect_and_subscribe():
+    global mqtt_client
+    global retries
+    if retries < 300:
+        try:
+            mqtt_client = MQTTClient(client_id, mqtt_server_ip)
+            mqtt_client.connect()
+            mqtt_client.set_callback(mqtt_on_message)
+            mqtt_client.subscribe(command_topic)
+            print('connected to mqtt server at {}'.format(mqtt_server_ip))
+            retries = 0
+        except OSError:
+            time.sleep(1)
+            retries += 1
+            print('connection to mqtt server failed, retrying')
+            mqtt_connect_and_subscribe() 
+    else:
+        print('could not connect to mqtt_server at {}'.format(mqtt_server_ip))
+
+
+mqtt_connect_and_subscribe()
 led = led_control()
 
+
 while True:
-    light_client.publish(state_topic, json.dumps(led.state),0,True)
+    mqtt_send_message(state_topic, json.dumps(led.state),0,True)
     print('return:', led.state)
-    light_client.wait_msg()
+    mqtt_wait_message()
     time.sleep_ms(100)
 
 
