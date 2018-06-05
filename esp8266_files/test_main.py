@@ -76,36 +76,39 @@ class switch():
 
        
 
+def mqtt_on_message(topic, message):
+    tpc = topic.decode('utf-8')
+    msg = message.decode('utf-8')
+    if tpc == light.tc_set:
+        light.update(msg)
+    print('topic {}, message {}'.format(tpc, msg))  
+    if tpc == esp8266_set and msg == 'RESET':
+        machine.reset()
+
 class mqtt_client():
-    def __init__(self, topics, callback, client_id, mqtt_server_ip):
+    def __init__(self, topics, callback, client_id, mqtt_server_ip)
+        self.__mqtt_client = None
         self.server_ip = mqtt_server_ip
         self.id = client_id
-        self.__mqtt_client = MQTTClient(self.id, self.server_ip)
         self.topics = topics
-        print(self.topics)  
         self.__callback = callback
         self.connected = False
-        self.__connect()
+        self.connect()
     
     def __connect(self):
         try:
-#            print('id', self.id, 'ip' , self.server_ip)
-            myclient = MQTTClient(self.id, self.server_ip)
             self.__mqtt_client = MQTTClient(self.id, self.server_ip)
             self.__mqtt_client.set_callback(self.__callback)
-            self.__mqtt_client.connect()
-            for tpc in self.topics:
-                print('subscribing to topic ', tpc)
+            for tpc in topics:
                 self.__mqtt_client.subscribe(tpc)
             print('connected to mqtt server at {}'.format(self.server_ip))            
             self.connected = True
         except OSError:
-            print('unable to connect to mqtt server')
             self.connected = False        
 
     def check_msg(self):
         try:
-            self.__mqtt_client.check_msg()
+            self.__mqtt_client.check_msg():
             self.connected = True
         except OSError:
             self.connected = False
@@ -114,7 +117,7 @@ class mqtt_client():
         tpc = topic.encode('utf-8')
         msg = message.encode('utf-8')
         try:
-            self.__mqtt_client.publish(tpc,msg,0,True)
+            self.__mqtt_client.publish(tpc_msg,0,True)
             print('published topic {}, message {}'.format(topic, message))  
             self.connected = True
         except OSError:
@@ -126,17 +129,6 @@ class mqtt_client():
         if not self.connected:
             self.__connect()
         return self.connected
-
-
-
-def mqtt_on_message(topic, message):
-    tpc = topic.decode('utf-8')
-    msg = message.decode('utf-8')
-    if tpc == light.tc_set:
-        light.update(msg)
-    print('topic {}, message {}'.format(tpc, msg))  
-    if tpc == esp8266_set and msg == 'RESET':
-        machine.reset()
 
 
 def check_btn_led():
@@ -157,13 +149,12 @@ def check_btn_led():
 
 def main_loop():	
     while True:
-        check_btn_led()
         if client.is_alive():
             client.check_msg()
             if light.haschanged:
                 client.send_msg(light.topic, light.message)
                 light.haschanged = False
-            print('light  {}   btn    {}, led   {}'.format(light.switch, btn.value(), led.value()))
+                print('light  {}   btn    {}, led   {}'.format(light.switch, btn.value(), led.value()))
         time.sleep_ms(500) 
 
 light = switch(12, light_topic, light_set)

@@ -216,7 +216,7 @@ class mqtt_client():
         except OSError:
             print('unable to connect to mqtt server')
             self.connected = False 
-            time.sleep_ms(1000)       
+            time.sleepms(1000)       
 
     def check_msg(self):
         try:

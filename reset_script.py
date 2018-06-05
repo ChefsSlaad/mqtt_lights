@@ -9,10 +9,16 @@ mqtt_server = '192.168.1.10'
 client_name = 'listener'
 
 boekenkast  = "home/controller/woonkamer/boekenkast"
-light1_set   = "home/woonkamer/boekenkast/light/light1/set"
+servieskast  = "home/controller/woonkamer/servieskast"
+schemerlamp  = "home/controller/woonkamer/bank_schemerlamp"
+gordijn_lang  = "home/controller/woonkamer/gordijn_lang"
+
 client = mqtt.Client(client_name)
 client.connect(mqtt_server)
 
 print('sending reset signal to', boekenkast)
 client.publish(boekenkast, "RESET")
+client.publish(servieskast, "RESET")
+client.publish(schemerlamp, "RESET")
+client.publish(gordijn_lang, "RESET")
 

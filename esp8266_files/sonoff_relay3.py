@@ -5,9 +5,9 @@ import machine
 
 
 client_id    = 'esp8266-light' + ubinascii.hexlify(machine.unique_id()).decode('utf-8')
-esp8266_set  = "home/controller/woonkamer/servieskast"
-light_set   = "home/woonkamer/servieskast/set"
-light_topic = "home/woonkamer/servieskast"
+esp8266_set  = "home/controller/woonkamer/schemerlamp"
+light_set   = "home/woonkamer/bank_schemerlamp/set"
+light_topic = "home/woonkamer/bank_schemerlamp"
 
 mqtt_server_ip   = '192.168.1.10'
 mqtt_server_port = 1883
