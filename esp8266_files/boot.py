@@ -7,14 +7,7 @@ import network
 import time
 from machine import reset, Pin
 
-validpins = (0, 2, 4, 5, 12, 13, 14, 15,)
-
-networks = (
-    ('BonBini', 'Rabootje'),
-    ('home', 'Garuda180'),
-    ('marc', 'marcisdabomb')
-    )
-
+validpins = (0, 2, 4, 5, 12, 13, 14, 15)
 
 print('turning off all pins')
 for p in validpins:
@@ -30,9 +23,9 @@ station.active(True)
 
 print()
 print('scanning network')
-    for i in range(10):
-        print('.', end='')
-        time.sleep(0.2)
+for i in range(10):
+    print('.', end='')
+    time.sleep(0.2)
 print()
 
 stations_ssid = list(str(net[0],'utf-8') for net in station.scan())

@@ -1,0 +1,17 @@
+{
+  "network": [
+    {
+      "ssid": "home", 
+      "password": "Garuda180"
+    }, 
+    {
+      "ssid": "marc", 
+      "password": "marcisdabomb"
+    }, 
+    {
+      "ssid": "BonBini", 
+      "password": "Rabootje"
+    }
+  ],
+  "valid_pins": [0, 2, 4, 5, 12, 13, 14, 15]
+}
