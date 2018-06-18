@@ -64,5 +64,6 @@ def scan_and_connect(networks = ({'ssid':'test','password':'test'})):
     print()    
 
 
-activate_wifi()
+if name == __main__:
+    activate_wifi()
 

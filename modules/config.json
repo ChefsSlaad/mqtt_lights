@@ -1,17 +1,54 @@
 {
+  "name": "devicename",  
+
   "network": [
-    {
-      "ssid": "home", 
-      "password": "Garuda180"
+    { "ssid": "home", 
+      "password": "Garuda180" 
     }, 
-    {
-      "ssid": "marc", 
-      "password": "marcisdabomb"
+    { "ssid": "marc", 
+      "password": "marcisdabomb" 
     }, 
-    {
-      "ssid": "BonBini", 
+    { "ssid": "BonBini", 
       "password": "Rabootje"
     }
   ],
-  "valid_pins": [0, 2, 4, 5, 12, 13, 14, 15]
+
+  "valid_pins": [0, 2, 4, 5, 12, 13, 14, 15],
+
+  "mqtt_server": {
+    "server_adress": "192.168.1.10"
+    },
+
+  "led_strip": {
+      "state_topic":   "home/woonkamer/gordijn_kort",
+      "command_topic": "home/woonkamer/gordijn_kort/set",
+      "pin": {
+          "red":   15,
+          "green": 13,
+          "blue":  12,
+          "white": 14
+          }
+      },
+
+  "switch": {
+      "state_topic":   "home/woonkamer/schemerlamp",
+      "command_topic": "home/woonkamer/schemerlamp/set",
+      "pin": 12,
+      "high_on": false
+      },
+
+  "button": {
+      "state_topic":   "home/woonkamer/schemerlamp/knop",
+      "pin": 13,
+      "high_on": false
+      },
+
+  "led": {
+      "state_topic":   "home/woonkamer/schemerlamp/led",
+      "command_topic": "home/woonkamer/schemerlamp/led/set",
+      "pin": 0,
+      "high_on": false
+      }
 }
+
+
