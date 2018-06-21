@@ -20,6 +20,7 @@
     },
 
   "led_strip": {
+      "type": "led_strip",
       "state_topic":   "home/woonkamer/gordijn_kort",
       "command_topic": "home/woonkamer/gordijn_kort/set",
       "pin": {
@@ -31,6 +32,7 @@
       },
 
   "switch": {
+      "type": "switch",
       "state_topic":   "home/woonkamer/schemerlamp",
       "command_topic": "home/woonkamer/schemerlamp/set",
       "pin": 12,
@@ -38,15 +40,24 @@
       },
 
   "button": {
+      "type": "button",
       "state_topic":   "home/woonkamer/schemerlamp/knop",
       "pin": 13,
       "high_on": false
       },
 
   "led": {
+      "type": "led",
       "state_topic":   "home/woonkamer/schemerlamp/led",
       "command_topic": "home/woonkamer/schemerlamp/led/set",
       "pin": 0,
+      "high_on": false
+      },
+
+   "sensor": {
+      "type": "binary_sensor",
+      "state_topic": "home/woonkamer/boekenkast/sensor",
+      "pin": 4,
       "high_on": false
       }
 }

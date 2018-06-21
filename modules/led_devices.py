@@ -7,6 +7,7 @@ class led_pwm():
             raise ValueError ("pin must be 0, 2, 4, 5, 12, 13, 14, or 15")
         self._pwm_device =  machine.PWM(machine.Pin(pin, machine.Pin.OUT), freq = 400, duty = 0)
         self.val         = 0
+        self.state       = 'OFF'
         self.inverted    = inverted
         self.is_on       = False
 
@@ -26,8 +27,10 @@ class led_pwm():
             self.val = value
             if value == 0:
                 self.is_on = False
+                self.state = 'OFF'
             else:
                 self.is_on = True
+                self.state = 'ON'
             if self.inverted:
                 pin_val = 1023 - int(value*4.01)
             else:
@@ -56,87 +59,6 @@ class led_pwm():
             self.value(0)
         else:
             self.value(255)
-
-class switch():
-    def __init__ (self, pin, topic, set_topic, inverted = True):
-        if pin not in (0, 2, 4, 5, 12, 13, 14, 15, 16):
-            raise ValueError ("pin must be 0, 2, 4, 5, 12, 13, 14, 15 or 16")
-        self._relay =  machine.Pin(pin, machine.Pin.OUT)
-        self.state = 'OFF'
-        self.is_on  = False
-        self.topic  = topic
-        self.set_topic = set_topic
-        self.inverted = inverted
-        self._set_state()
-        self.haschanged = False
-
-        self.update('OFF')
-  
-    def __str__(self):
-        variables = (self.state, self.is_on, self._relay.value())
-        log_str = 'switch: {} is_on {} relay_state {}' 
-        return(log_str.format(*variables))
-
-    def _set_state(self):
-        if self.is_on:
-            state = 1  
-        else:
-            state = 0  
-        
-        if self.inverted:
-            state = 1 - state
-        self._relay.value(state)
-
-    def update(self, value):
-        self.haschanged = False
-        on_vals = (True, 1, 'true', 'on')
-        off_vals = (False, 0, 'false', 'off')
-        if isinstance(value, str): value = value.lower() # convert value to lowercase if it is a string
-        if value in on_vals:
-            self.is_on  = True
-            self.state = 'ON'                   
-        if value in off_vals:
-            self.is_on  = False
-            self.state = 'OFF'
-        self._set_state()
-        self.haschanged = True 
-
-    def toggle(self):
-        if self.is_on:
-            self.update('OFF')
-        else:
-            self.update('ON')
-
-
-class button():
-    def __init__(self, pin, press_for_reset = True, inverted = False):
-        if pin not in (0, 2, 4, 5, 12, 13, 14, 15,):
-            raise ValueError ("pin must be 0, 2, 4, 5, 12, 13, 14, or 15")
-        self._btn        = machine.Pin(pin, machine.Pin.IN)
-        self.ispressed   = False
-        self.inverted    = inverted
-        self.press_time  = 0
-        self.lastpress   = time.time()
-        self.press_reset = press_for_reset
-
-    def check_state(self):
-        value = self.ispressed
-        if self.inverted:
-            self.ispressed = self._btn.value() == 0
-        else:
-            self.ispressed = self._btn.value() == 1
-
-        if value != self.ispressed: # i.e. the button has just been pressed
-            self.press_time = 0
-            self.lastpress = time.time()     
-        if self.ispressed:
-            self.press_time = time.time() - self.lastpress
-        if self.press_time > 5 and self.press_reset:
-            machine.reset()
-
-class sensor():
-    def __init__(self, pins, topic, set_topic, invert = True):
-        pass
 
 
 class led_strip():
@@ -306,4 +228,3 @@ def HSV_2_RGB(HSV):
 
     else: 
         return (V, P, Q)
-
