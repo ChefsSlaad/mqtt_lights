@@ -35,14 +35,14 @@
       "type": "switch",
       "state_topic":   "home/woonkamer/schemerlamp",
       "command_topic": "home/woonkamer/schemerlamp/set",
-      "pin": 12,
+      "pin": 5,
       "high_on": false
       },
 
   "button": {
       "type": "button",
       "state_topic":   "home/woonkamer/schemerlamp/knop",
-      "pin": 13,
+      "pin": 2,
       "high_on": false
       },
 

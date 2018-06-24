@@ -1,34 +1,39 @@
-import machine
-import time
+from machine import Pin, reset 
+from time import time
 
 class button():
-    def __init__(self, pin, press_for_reset = True, inverted = False):
+    def __init__(self, pin, press_for_reset = True, topic = None, set_topic = None, inverted = False):
         if pin not in (0, 2, 4, 5, 12, 13, 14, 15,):
             raise ValueError ("pin must be 0, 2, 4, 5, 12, 13, 14, or 15")
-        self._btn        = machine.Pin(pin, machine.Pin.IN)
+        self._btn        = Pin(pin, Pin.IN)
+        self.type        = 'button'
         self.ispressed   = False
         self.state       = 'OFF'
-        self.topic       = ''
+        self.old_state   = None
+        self.topic       = topic
+        self.set_topic   = set_topic
         self.inverted    = inverted
-        self.press_time  = 0
-        self.lastpress   = time.time()
+        self.since_press = time()
         self.press_reset = press_for_reset
 
+    def __str__(self):
+        string = 'type {}, pressed {}, state {}, since_press {}, topic {}, set_topic {}'
+        return string.format(self.type, self.ispressed, self. state, self.since_press, self.topic, self.set_topic)
+
     def check_state(self):
-        value = self.ispressed
+        self.old_state = self.state
         if self.inverted:
             self.ispressed = self._btn.value() == 0
         else:
             self.ispressed = self._btn.value() == 1
 
-        if value != self.ispressed: # i.e. the button has just been pressed
-            self.press_time = 0
-            self.lastpress = time.time()     
-        if self.ispressed:
-            self.press_time = time.time() - self.lastpress
-        if self.press_time > 5 and self.press_reset:
-            machine.reset()
+        if self.state == 'OFF': # i.e. the button has not been pressed
+            self.since_press = time()     
+        if self.ispressed and self.press_reset:
+            if self.since_press + 5 < time():
+                reset()
+                return
         if self.ispressed:
             self.state = 'ON'
         else:
-            self.state = 'OFF'
+            self.state = 'OFF'            

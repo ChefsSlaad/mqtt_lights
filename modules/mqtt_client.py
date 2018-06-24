@@ -27,6 +27,11 @@ class mqtt_client():
         self.debug =         debug
         self.__connect()
 
+    def __str__(self):
+        results = 'mqtt client\n  id      {}\n  server    {}\n  callback {}\n  topics  {}\n'
+        return results.format(self.id, self.server_ip, self.__callback, self.topics)
+        
+
     def __connect(self):
         try:
             if self.debug:
