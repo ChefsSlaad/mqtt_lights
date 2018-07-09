@@ -4,8 +4,10 @@ from urandom import getrandbits
 class strip():
 
 
-    def __init__(self, pin = 4, leds = 21):
-        self.pixel = neopixel.NeoPixel(machine.Pin(pin), leds)
+    def __init__(self, pin = 4, ring = 12, strip = 21):
+        self.pixel = neopixel.NeoPixel(machine.Pin(pin), ring+strip)
+        self.ringsize = 12
+        self.stripsize = 21
     
  
     def _validate_color(self, c):
@@ -32,7 +34,7 @@ class strip():
         else:
             self.set(pix,(round(r*pct), round(g*pct), round(b*pct)))
      
-    def chase(self, first = 0, last = 20, color = (255,255,255), tail = 5, dim = 0.33, ms_pause = 10, forward = True, loops = -1):
+    def chase(self, first = 0, last = 11, color = (255,255,255), tail = 5, dim = 0.33, ms_pause = 10, forward = True, loops = -1):
         done = []
         if forward:
             step = 1
