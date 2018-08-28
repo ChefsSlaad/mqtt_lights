@@ -46,7 +46,8 @@ class mqtt_client():
             print('connected to mqtt server at {}'.format(self.server_ip))            
             self.connected = True
         except OSError:
-            print('unable to connect to mqtt server')
+            if self.debug:
+                print('unable to connect to mqtt server')
             self.connected = False        
 
     def subscribe(self, topic):
@@ -63,10 +64,15 @@ class mqtt_client():
 
     def check_msg(self):
         try:
+            self.is_alive()
+            if self.debug:
+                print('checking for new messages')
             self.__mqtt_client.check_msg()
             self.connected = True
         except OSError:
             self.connected = False
+            if self.debug:
+                print('no connection to mqtt server')
 
     def send_msg(self, topic, message):
         tpc = topic.encode('utf-8')
@@ -76,6 +82,8 @@ class mqtt_client():
             print('published topic {}, message {}'.format(topic, message))  
             self.connected = True
         except OSError:
+            if self.debug:
+                print('error publishing topic {}, message {}. \n not connected to mqtt server'.format(topic, message))
             self.connected = False
 
     def is_alive(self):

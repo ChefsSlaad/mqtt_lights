@@ -9,7 +9,7 @@ def read_config(config_file = None):
     import os
     import ujson
     if config_file == None: #if no file is not specified, read the first config file in the root dir
-        config_file = [f for f in os.listdir().sort() if f[-5:] == '.json'][0]
+        config_file = [f for f in sorted(os.listdir()) if f[-5:] == '.json'][0]
     try:
         if os.stat(config_file)[6] != 0:
             print('reading file', config_file)
@@ -38,7 +38,7 @@ def load_mqtt(config, devices):
             print('no topic found for', dev.type)
     name = config['name']
     mqtt_config = config['mqtt_server']
-    mqtt = mqtt_client.mqtt_client(all_topics, name, mqtt_config['server_adress'], callback = mqtt_on_message)
+    mqtt = mqtt_client.mqtt_client(all_topics, name, mqtt_config['server_adress'], callback = mqtt_on_message, debug=True)
     return mqtt        
 
 def load_switch(config, devices):
@@ -114,7 +114,7 @@ def mqtt_on_message(mqtt_topic, mqtt_message):
 
 
 def load_all(config, devices):
-    config = read_config("config.json")
+    config = read_config()
     load_wifi(config)
     gc.collect()
     print('loading switch, free memory {}'.format(gc.mem_free()))
@@ -150,7 +150,7 @@ def check_for_changes_and_update(devices, mqtt):
             device.old_state = device.state
         if device.type in valid_input_devices:
             device.check_state()
-        mqtt.check_msg() 
+    mqtt.check_msg() 
 
 def main_loop(config, devices):
     config, mydevices, mqtt = load_all(config, devices)

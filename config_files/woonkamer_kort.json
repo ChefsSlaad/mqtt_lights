@@ -1,0 +1,32 @@
+{
+  "name": "gordijn_kort",  
+
+  "network": [
+    { "ssid": "home", 
+      "password": "Garuda180" 
+    }, 
+    { "ssid": "marc", 
+      "password": "marcisdabomb" 
+    }
+  ],
+
+  "valid_pins": [0, 2, 4, 5, 12, 13, 14, 15],
+
+  "mqtt_server": {
+    "server_adress": "10.0.0.10"
+    },
+
+  "led_strip": {
+      "type": "led_strip",
+      "state_topic":   "home/woonkamer/gordijn_kort",
+      "command_topic": "home/woonkamer/gordijn_kort/set",
+      "pin": {
+          "red":   15,
+          "green": 13,
+          "blue":  12,
+          "white": 14
+          }
+      }
+}
+
+
