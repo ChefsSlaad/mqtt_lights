@@ -1,5 +1,6 @@
 from machine import Pin, PWM
 from ujson import loads, dumps
+from time import sleep_ms
 import rgb_hsv
 
 class led_pwm():
@@ -73,7 +74,8 @@ class led_strip():
         self.type      = 'led_strip'
         self.topic     = topic
         self.set_topic = set_topic
-        self.dic_state = {'brightness': 255,
+        self.tran_incr = None #use for fade effects -> _generate_steps
+        self.dic_state = {'brightness': 0,
                                'state': 'OFF'
                         # 'transition': None,
                          # 'color_temp: None,
@@ -153,18 +155,42 @@ class led_strip():
             else:
                 self.white_led.value(0)
 
-    def update(self, json_string):
-        print('function update called with', json_string)
-        state = loads(json_string)
-        for key, value in state.items():
-#            print('evaluating key {}, value {}'.format(key,value))
-            if key in ('brightness', 'color', 'state', 'white_value'):
-                if self.dic_state[key] != value:
-#                    print('updating {}, old value {}'.format(key,self.dic_state[key]), end = ' ')
-                    self.dic_state[key] = value
-#                    print ('new value', self.dic_state[key])
+    def _generate_incr(self, end_state, steps):
+        start_state = self.dic_state
+        # generate a steps block that defines the color change for each step
+        self.tran_incr = {}
+        for key in end_state.keys():
+#            print(key, end_state[key], type(end_state[key]))
+            if type(end_state[key]) is dict:
+                sub_dict = end_state[key]
+                step_col = {}
+                for col_key in sub_dict.keys():
+                    step_col[col_key] = (end_state[key][col_key] - 
+                                         start_state[key][col_key])/steps
+                self.tran_incr[key] = step_col
+            else:
+                self.tran_incr[key] = (end_state[key]-start_state[key])/steps
 
+    def _next_step(self, start_state, s):
+         same = True #use same to track if the color state is different than the current one
+        my_color = {}
+        for key in self.tran_incr.keys():
+ # handle nested dict -> this only goes one layer deep
+            if type(self.tran_incr[key]) is dict:
+                sub_dict = self.tran_incr[key]
+                step_col = {}
+                for col_key in sub_dict.keys():
+                    step_col[col_key] = round(start_state[key][col_key] + 
+                                              self.tran_incr[key][col_key]*s)
+                my_color[key] = step_col
+            else:
+                my_color[key] = round(start_state[key]+ self.tran_incr[key]*s)
+            same = (my_color[key] == self.dic_state[key] and same) 
+        if not same:
+            self.update(my_color)            
+
+    def update(self, state):
+        for key, value in state.items():
+            self.dic_state[key] = value
         self.state = dumps(self.dic_state)
-#        print('updated state', self.state)
         self._update_led()
-        print('function update finished')

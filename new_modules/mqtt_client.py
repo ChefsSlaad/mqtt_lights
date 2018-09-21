@@ -60,14 +60,19 @@ class mqtt_client():
         if topic in self.topics:
             self.topics.pop(topic)
             # umqtt.simple does not implement an unsubscribe method    
-        
 
-    def check_msg(self):
+    def wait_msg(self):
+        self.check_msg(blocking = True)
+
+    def check_msg(self, blocking = False):
         try:
             self.is_alive()
             if self.debug:
                 print('checking for new messages')
-            self.__mqtt_client.check_msg()
+            if blocking:
+                self.__mqtt_client.wait_msg()
+            else:
+                self.__mqtt_client.check_msg()
             self.connected = True
         except OSError:
             self.connected = False

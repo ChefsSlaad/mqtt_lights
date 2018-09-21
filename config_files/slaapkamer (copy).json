@@ -1,0 +1,31 @@
+{
+  "name": "woonkamer_tafel",  
+
+  "network": [
+    { "ssid": "home", 
+      "password": "Garuda180" 
+    }, 
+    { "ssid": "marc", 
+      "password": "marcisdabomb" 
+    }
+  ],
+
+  "valid_pins": [0, 2, 4, 5, 12, 13, 14, 15],
+
+  "mqtt_server": {
+    "server_adress": "10.0.0.10"
+    },
+
+  "led_strip": {
+      "type": "led_strip",
+      "state_topic": "home/woonkamer/tafel",
+      "command_topic": "home/woonkamer/tafel/set",
+      "pin": {
+          "red":   15,
+          "green": 13,
+          "blue":  12,
+          "white": 14
+          }
+      }
+}
+
