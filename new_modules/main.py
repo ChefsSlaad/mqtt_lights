@@ -15,7 +15,7 @@ def read_config(config_file = None):
     try:
         if os.stat(config_file)[6] != 0:
             print('reading file', config_file)
-            with open(config_file) as read_file: 
+            with open(config_file) as read_file:
                 config = ujson.load(read_file)
     except OSError:
         print('cannto read', config_file)
@@ -24,7 +24,7 @@ def read_config(config_file = None):
     return config
 
 def load_wifi(config):
-    import wifi_config 
+    import wifi_config
     if 'network' in config:
         networks = config['network']
         wifi_config.scan_and_connect(networks)
@@ -44,10 +44,10 @@ def load_led_strip(config):
         if "type" in item and item["type"] == "led_strip":
             state_topic = item["state_topic"]
             command_topic = item["command_topic"]
-            pin           = item["pin"] 
+            pin           = item["pin"]
             device = led_devices.led_strip(pins = pin, topic = state_topic, set_topic = command_topic)
             return device
-    
+
 def mqtt_on_message(mqtt_topic, mqtt_message):
     global device
     message = mqtt_message.decode('utf-8')
@@ -71,9 +71,9 @@ def update_led_strip(message):
             duration = value
         if key == 'state':
             switch = value
-    if device.fade: 
+    if device.fade:
         device.update({'state':'ON'})
-        if duration == None: 
+        if duration == None:
             duration = 300
         steps = duration *(1000/100)
         device._generate_incr(state, steps)
@@ -113,7 +113,7 @@ def main_loop(mqtt, device):
     active = True
     mqtt.send_msg(device.topic, device.state)
     while active:
-        mqtt.wait_msg() 
+        mqtt.wait_msg()
 
 if __name__ == '__main__':
     mqtt, device = init_loop()
