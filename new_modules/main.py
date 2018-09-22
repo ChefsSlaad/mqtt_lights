@@ -99,6 +99,7 @@ def update_led_strip(message):
     elif switch is not None: # update on or off
         state['state'] = switch
     device.update(state)
+    mqtt.send_msg(device.topic, device.state)
 
 def init_loop(config = None, mqtt = None, device = None):
     config = read_config()
@@ -110,9 +111,8 @@ def init_loop(config = None, mqtt = None, device = None):
 
 def main_loop(mqtt, device):
     active = True
+    mqtt.send_msg(device.topic, device.state)
     while active:
-        mqtt.send_msg(device.topic, device.state)
-        device.old_state = device.state
         mqtt.wait_msg() 
 
 if __name__ == '__main__':

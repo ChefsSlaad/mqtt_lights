@@ -172,7 +172,7 @@ class led_strip():
                 self.tran_incr[key] = (end_state[key]-start_state[key])/steps
 
     def _next_step(self, start_state, s):
-         same = True #use same to track if the color state is different than the current one
+        same = True #use same to track if the color state is different than the current one
         my_color = {}
         for key in self.tran_incr.keys():
  # handle nested dict -> this only goes one layer deep
