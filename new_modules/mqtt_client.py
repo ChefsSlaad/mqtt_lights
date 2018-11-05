@@ -14,7 +14,7 @@ def test_run():
     while True:
         client.check_msg()
         sleep(1)
-    
+
 
 class mqtt_client():
     def __init__(self, topics, client_id, mqtt_server_ip, callback = basic_callback, debug = False):
@@ -30,7 +30,7 @@ class mqtt_client():
     def __str__(self):
         results = 'mqtt client\n  id      {}\n  server    {}\n  callback {}\n  topics  {}\n'
         return results.format(self.id, self.server_ip, self.__callback, self.topics)
-        
+
 
     def __connect(self):
         try:
@@ -43,23 +43,23 @@ class mqtt_client():
             for tpc in self.topics:
                 print('subscribing to topic ', tpc)
                 self.__mqtt_client.subscribe(tpc)
-            print('connected to mqtt server at {}'.format(self.server_ip))            
+            print('connected to mqtt server at {}'.format(self.server_ip))
             self.connected = True
         except OSError:
             if self.debug:
                 print('unable to connect to mqtt server')
-            self.connected = False        
+            self.connected = False
 
     def subscribe(self, topic):
         if topic not in self.topics:
             self.topics.append(topic)
             if self.connected:
                 self.__mqtt_client.subscribe(topic)
-    
+
     def unsubscribe(self, topic):
         if topic in self.topics:
             self.topics.pop(topic)
-            # umqtt.simple does not implement an unsubscribe method    
+            # umqtt.simple does not implement an unsubscribe method
 
     def wait_msg(self):
         self.check_msg(blocking = True)
@@ -84,7 +84,7 @@ class mqtt_client():
         msg = message.encode('utf-8')
         try:
             self.__mqtt_client.publish(tpc,msg,0,True)
-            print('published topic {}, message {}'.format(topic, message))  
+            print('published topic {}, message {}'.format(topic, message))
             self.connected = True
         except OSError:
             if self.debug:
@@ -100,11 +100,10 @@ class mqtt_client():
 
 
     def is_alive(self):
-    # check if connected is true and reconnect if it is not. if succesful, the 
+    # check if connected is true and reconnect if it is not. if succesful, the
     # function will return true, otherwise, false
         if not self.connected:
             if self.debug:
                 print('disconnected, attempting reconnect')
             self.__connect()
         return self.connected
-
