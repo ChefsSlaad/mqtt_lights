@@ -28,8 +28,8 @@ class mqtt_client():
         self.__connect()
 
     def __str__(self):
-        results = 'mqtt client\n  id      {}\n  server    {}\n  callback {}\n  topics  {}\n'
-        return results.format(self.id, self.server_ip, self.__callback, self.topics)
+        results = 'mqtt client\n  id        {}\n  server    {}\n  connected {}\n  callback  {}\n  topics    {}\n'
+        return results.format(self.id, self.server_ip, self.connected, self.__callback, self.topics)
 
 
     def __connect(self):
@@ -80,6 +80,7 @@ class mqtt_client():
         tpc = topic.encode('utf-8')
         msg = message.encode('utf-8')
         try:
+            self.is_alive()
             self.__mqtt_client.publish(tpc,msg,0,True)
             if self.debug: print(self.id, 'published topic {}, message {}'.format(topic, message))
             self.connected = True
