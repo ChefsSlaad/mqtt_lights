@@ -1,7 +1,6 @@
 from umqtt.simple import MQTTClient
 from time import sleep
 
-
 def basic_callback(topic, message):
     response = message.decode('utf-8')
     print(topic.decode('utf-8'), response)
@@ -36,17 +35,17 @@ class mqtt_client():
         try:
             if self.debug:
                 print('id', self.id, 'ip' , self.server_ip)
-            myclient = MQTTClient(self.id, self.server_ip, self.port)
-            self.__mqtt_client = MQTTClient(self.id, self.server_ip)
-            self.__mqtt_client.set_callback(self.__callback)
+            self.__mqtt_client = MQTTClient(self.id, self.server_ip, self.port)
             self.__mqtt_client.connect()
-            for tpc in self.topics:
-                if self.debug: print(self.id, 'subscribing to topic ', tpc)
-                self.__mqtt_client.subscribe(tpc)
+            if self.__callback != None:
+                self.__mqtt_client.set_callback(self.__callback)
+                for tpc in self.topics:
+                    if self.debug: print(self.id, 'subscribing to topic ', tpc)
+                    self.__mqtt_client.subscribe(tpc)
             if self.debug: print(self.id, 'connected to mqtt server at {}'.format(self.server_ip))
             self.connected = True
-        except OSError:
-            if self.debug: print(self.id, 'unable to connect to mqtt server')
+        except OSError as err:
+            if self.debug: print(self.id, 'unable to connect to mqtt server \n', err)
             self.connected = False
 
     def subscribe(self, topic):
@@ -72,9 +71,9 @@ class mqtt_client():
             else:
                 self.__mqtt_client.check_msg()
             self.connected = True
-        except OSError:
+        except OSError as err:
             self.connected = False
-            if self.debug: print(self.id, 'no connection to mqtt server')
+            if self.debug: print(self.id, 'no connection to mqtt server \n', err)
 
     def send_msg(self, topic, message):
         tpc = topic.encode('utf-8')
@@ -84,8 +83,8 @@ class mqtt_client():
             self.__mqtt_client.publish(tpc,msg,0,True)
             if self.debug: print(self.id, 'published topic {}, message {}'.format(topic, message))
             self.connected = True
-        except OSError:
-            if self.debug: print(self.id, 'error publishing topic {}, message {}. \n not connected to mqtt server'.format(topic, message))
+        except OSError as err:
+            if self.debug: print(self.id, 'error publishing topic {}, message {}. \n not connected to mqtt server\n'.format(topic, message), err)
             self.connected = False
 
     def reconnect(self):
@@ -96,7 +95,11 @@ class mqtt_client():
 
     def disconnect(self):
         if self.debug: print(self.id, 'disconnecting now')
-        self.__mqtt_client.disconnect()
+        try:
+            self.__mqtt_client.disconnect()
+        except OSError as err:
+            self.connected = False
+            if self.debug: print(self.id, 'no connection to mqtt server \n', err)
 
     def is_alive(self):
     # check if connected is true and reconnect if it is not. if succesful, the
