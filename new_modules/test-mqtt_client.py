@@ -134,15 +134,15 @@ class mqtt_tests(unittest.TestCase):
     def test_continuity(self):
         # send a contnuous load for xx hours
         global r_topic, r_message
-        hrs = 6
+        hrs = 8
         dur = 60*60*hrs
         start = time()
         i = 0
-        while time()-now < dur:
+        while time()-start < dur:
             for t in test_topics:
                 m = getrandstr(getrandbits(8))
                 self.sender.send_msg(t,m)
-                self.reciev.wait_msg()
+                self.reciev.check_msg()
                 self.assertEqual(t, r_topic)
                 self.assertEqual(m, r_message)
                 sleep_ms(200)
