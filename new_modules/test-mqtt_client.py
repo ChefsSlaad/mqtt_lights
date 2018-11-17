@@ -143,6 +143,7 @@ class mqtt_tests(unittest.TestCase):
 #                self.assertEqual(t, r_topic)
 #                self.assertEqual(m, r_message)
                 sleep_ms(200)
+#                print('.', end ='')
 
 if __name__ == '__main__':
     unittest.main()
