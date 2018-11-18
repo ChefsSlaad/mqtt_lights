@@ -70,7 +70,11 @@ class led_strip():
         self.type       = 'led_strip'
         self.topic      = topic
         self.set_topic  = set_topic
-        self.transition = {'effect': 'fade', 'end_state':{}, 'step':{}}
+        self.transition = {'effect': 'fade',
+                            'end_state':{},
+                                 'step':{},
+                      'remaining_steps': 0
+                           }
         self.dic_state  = {    'state': 'OFF'
                         # 'transition': None,
                          # 'color_temp: None,
@@ -150,41 +154,58 @@ class led_strip():
             else:
                 self.white_led.value(0)
 
-    def _generate_incr(self, end_state, steps):
-        start_state = self.dic_state
-        # generate a steps block that defines the color change for each step
-        self.tran_incr = {}
-        for key in end_state.keys():
-#            print(key, end_state[key], type(end_state[key]))
-            if type(end_state[key]) is dict:
-                sub_dict = end_state[key]
-                step_col = {}
-                for col_key in sub_dict.keys():
-                    step_col[col_key] = (end_state[key][col_key] -
-                                         start_state[key][col_key])/steps
-                self.tran_incr[key] = step_col
-            else:
-                self.tran_incr[key] = (end_state[key]-start_state[key])/steps
+    def init_effect(self, end_state, effect = 'fade', steps = 3000):
+        # init_effect sets up a color effect (just a fade now) with a end state
+        # a step (the difference between end and current devided by the no of steps)
+        # and the number of steps remaining.
+        transition_step = {}
+        if 'brightness' in end_state.keys():
+            transition_step['brightness'] = (end_state['brightness'] - self.dic_state['brightness'])/steps
+        if 'white_value' in end_state.keys():
+            transition_step['white_value'] = (end_state['white_value'] - self.dic_state['white_value'])/steps
+        if 'color' in end_state.keys():
+            transition_step['color'] = {}
+            transition_step['color']['r'] = (end_state['color']['r'] - self.dic_state['color']['r'])/steps
+            transition_step['color']['g'] = (end_state['color']['g'] - self.dic_state['color']['g'])/steps
+            transition_step['color']['b'] = (end_state['color']['b'] - self.dic_state['color']['b'])/steps
+        self.transition['end_state'] = end_state
+        self.transition['step'] = transition_step
+        self.transition['remaining_steps'] = steps
 
-    def _next_step(self, start_state, s):
-        same = True #use same to track if the color state is different than the current one
-        my_color = {}
-        for key in self.tran_incr.keys():
- # handle nested dict -> this only goes one layer deep
-            if type(self.tran_incr[key]) is dict:
-                sub_dict = self.tran_incr[key]
-                step_col = {}
-                for col_key in sub_dict.keys():
-                    step_col[col_key] = round(start_state[key][col_key] +
-                                              self.tran_incr[key][col_key]*s)
-                my_color[key] = step_col
-            else:
-                my_color[key] = round(start_state[key]+ self.tran_incr[key]*s)
-            same = (my_color[key] == self.dic_state[key] and same)
-        if not same:
-            self.update(my_color)
+    def next_step(self):
+        # push the effect one step allong and update the effect
+        transition = self.transition
+        end_state = self.transition['end_state']
+        step = self.transition['step']
+        remaining_steps = self.transition['remaining_steps']
+        next_state = {}
+        remaining_steps = remaining_steps - 1
+        self.transition['remaining_steps'] = remaining_steps
+        if remaining_steps < 0:
+                self.transition['remaining_steps'] = 0
+                return
+        if 'brightness' in end_state.keys():
+            next_state['brightness'] = round(end_state['brightness'] - step['brightness']*remaining_steps)
 
-    def update(self, state):
+        if 'white_value' in end_state.keys():
+            next_state['white_value'] = round(end_state['white_value'] - step['white_value']*remaining_steps)
+        if 'color' in end_state.keys():
+            next_state['color'] = {}
+            next_state['color']['r'] = round(end_state['color']['r'] - step['color']['r']*remaining_steps)
+            next_state['color']['g'] = round(end_state['color']['g'] - step['color']['g']*remaining_steps)
+            next_state['color']['b'] = round(end_state['color']['b'] - step['color']['b']*remaining_steps)
+        next_state['state'] = "ON" # any effect only makes sense if the trip is on
+        self.update(next_state)
+
+
+    def update(self, update_state):
+        if isinstance(update_state, dict):
+            state = update_state
+        elif isinstance(update_state, str):
+            try:
+                state = loads(update_state)
+            except ValueError:
+                return
         for key, value in state.items():
             self.dic_state[key] = value
         self.state = dumps(self.dic_state)

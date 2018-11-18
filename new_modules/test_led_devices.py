@@ -229,11 +229,21 @@ class strip_tests(unittest.TestCase):
             self.assertEqual(strip.dic_state, p)
 
 
-    def test__gen_incr(self):
-        pass
+    def test_init_effect(self):
+        end_state = {'brightness': 128, 'white_value': 200, 'color': {'r':255,'g':255, 'b':0}}
+        steps = 500
+        self.rgbw.init_effect(end_state, steps=steps)
+        self.assertEqual(end_state, self.rgbw.transition['end_state'])
+        self.assertEqual(steps, self.rgbw.transition['remaining_steps'])
 
-    def test___next_step(self):
-        pass
+    def test_next_step(self):
+        end_state = {'brightness': 128, 'white_value': 200, 'color': {'r':255,'g':255, 'b':0}}
+        steps = 500
+        self.rgbw.init_effect(end_state, steps = steps)
+        for s in range(steps-1,-1, -1):
+            self.rgbw.next_step()
+            r = self.rgbw.transition['remaining_steps']
+            self.assertEqual(s, self.rgbw.transition['remaining_steps'])
 
     def test_strip_update_rgb(self):
         strip = self.rgb
@@ -242,12 +252,12 @@ class strip_tests(unittest.TestCase):
         for color in colors:
             a, b, c = color
             state['color'][a] = 255
-            for col2 in range(1,256, 1):
+            for col2 in range(1,256, 2):
                 state['color']['b'] = col2
-                for col3 in range(1,256, 2 ):
+                for col3 in range(1,256, 5):
                     state['color']['c'] = col3
 #                    print('testing color {} {} {}'.format(a, col2, col3))
-                    for brightness in range(1,256, 3):
+                    for brightness in range(1,256, 7):
                         state['brightness'] = brightness
                         strip.update(state)
                         R, G, B = rgb_to_pins(state)
@@ -257,8 +267,6 @@ class strip_tests(unittest.TestCase):
                         self.assertEqual(strip.blue_led.value(), B)
 
 
-    def test_fade(self):
-        pass
 
 if __name__ == '__main__':
     unittest.main()
