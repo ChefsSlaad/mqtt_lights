@@ -1,9 +1,12 @@
 import time
-from ujson import loads
+from ujson import loads, dumps
 
 config  = None
 mqtt    = None
 device  = None
+led     = None
+debug   = False
+
 valid_set_devices = ('led', 'led_strip', 'switch') # these devices have an update() method
 valid_input_devices = ('button', 'binary_sensor') # these devices have a check_state() method
 
@@ -34,15 +37,20 @@ def load_mqtt(config, topics):
     # create a list of all the topics to subscribe to (aka command topics)
     name = config['name']
     mqtt_config = config['mqtt_server']
-    mqtt = mqtt_client.mqtt_client(topics, name, mqtt_config['server_adress'], callback = mqtt_on_message, debug=True)
+    mqtt = mqtt_client.mqtt_client(topics, name, mqtt_config['server_adress'], callback = mqtt_on_message, debug=debug)
     return mqtt
+
+def load_onboard_led():
+    import led_devices
+    onboard_led = led_devices.led_pwm(2,inverted = True)
+    return onboard_led
 
 def load_led_strip(config):
     import led_devices
     for i in config:
         item = config[i]
         if "type" in item and item["type"] == "led_strip":
-            state_topic = item["state_topic"]
+            state_topic   = item["state_topic"]
             command_topic = item["command_topic"]
             pin           = item["pin"]
             device = led_devices.led_strip(pins = pin, topic = state_topic, set_topic = command_topic)
@@ -50,71 +58,51 @@ def load_led_strip(config):
 
 def mqtt_on_message(mqtt_topic, mqtt_message):
     global device
+    global led
+    led.on()
     message = mqtt_message.decode('utf-8')
     topic = mqtt_topic.decode('utf-8')
     print('recieved', topic, message)
-    update_led_strip(loads(message))
+    state = loads(message)
+    if 'effect' in state.keys():
+        handle_transition(state, device, mqtt)
+    else:
+        device.stop_transition()
+        device.update(state)
+    led.off()
 
-def update_led_strip(message):
-    global device
-    global mqtt
-    state = {}
-    device.fade = False
-    switch = None
-    duration = None
-    for key, value in message.items():
-        if key in ('brightness', 'color', 'white_value'):
-            state[key] = value
-        if key == 'effect' and message['effect'] == 'fade':
-            device.fade = True
-        if key == 'transition':
-            duration = value
-        if key == 'state':
-            switch = value
-    if device.fade:
-        device.update({'state':'ON'})
-        if duration == None:
-            duration = 300
-        steps = duration *(1000/100)
-        device._generate_incr(state, steps)
-        init_state = device.dic_state
-        # make a copy of the original state
-        orig_state = {}
-        for key, value in device.dic_state.items():
-            if key in ('brightness', 'white_value'):
-                orig_state[key] = value
-            elif key == 'color':
-                subdic = {}
-                for subkey, subval in device.dic_state[key].items():
-                    subdic[subkey] = subval
-                orig_state[key] = subdic
-        for s in range(steps):
-            device._next_step(orig_state, s)
-            if s % 10 == 0:
-                mqtt.send_msg(device.topic, device.state)
-                mqtt.check_msg()
-                if not device.fade:
-                    break
-            time.sleep_ms(50)
-    elif switch is not None: # update on or off
-        state['state'] = switch
-    device.update(state)
-    mqtt.send_msg(device.topic, device.state)
+def handle_transition(state, device, mqtt):
+    ms_wait = 100
+    steps_per_second = 1000/ms_wait
+    steps = 3000 # (5 min)
+    if 'transition' in state.keys():
+        steps = state['transition'] * steps_per_second
+    effect = state['effect']
+    device.init_effect(state, effect, steps)
+    for step in range(steps):
+        time.sleep_ms(ms_wait)
+        device.next_step()
+        if step % steps_per_second == 0: # once per second
+            mqtt.check_msg()
+            mqtt.publish(device.topic, device.state)
 
 def init_loop(config = None, mqtt = None, device = None):
     config = read_config()
-    load_wifi(config)
+#    load_wifi(config)
     device = load_led_strip(config)
     mqtt   = load_mqtt(config, [device.set_topic])
+    led    = load_onboard_led()
     print(mqtt)
-    return mqtt, device
+    return mqtt, device, led
 
-def main_loop(mqtt, device):
+def main_loop(mqtt, device, led):
     active = True
-    mqtt.send_msg(device.topic, device.state)
     while active:
+        mqtt.publish(device.topic, device.state)
         mqtt.wait_msg()
 
+##qblink after message
+
 if __name__ == '__main__':
-    mqtt, device = init_loop()
-    main_loop(mqtt, device)
+    mqtt, device, led = init_loop()
+    main_loop(mqtt, device, led)

@@ -1,18 +1,9 @@
 from umqtt.simple import MQTTClient
-from time import sleep
+from time import sleep_ms, time
 
 def basic_callback(topic, message):
     response = message.decode('utf-8')
     print(topic.decode('utf-8'), response)
-
-def test_run():
-    topics = ('home/hall/mirror', 'home/hall/mirror/set')
-    ip = '10.0.0.10'
-    host = 'test'
-    client = mqtt_client(topics, host, ip)
-    while True:
-        client.check_msg()
-        sleep(1)
 
 class mqtt_client():
     def __init__(self, topics, client_id, mqtt_server_ip, port = 1883, callback = basic_callback, debug = False):
@@ -24,6 +15,8 @@ class mqtt_client():
         self.topics =        list(topics)
         self.connected =     False
         self.debug =         debug
+        self.__last_reset = time()
+        self.__reset_time = 1800 # 30 minutes
         self.__connect()
 
     def __str__(self):
@@ -43,6 +36,7 @@ class mqtt_client():
                     if self.debug: print(self.id, 'subscribing to topic ', tpc)
                     self.__mqtt_client.subscribe(tpc)
             if self.debug: print(self.id, 'connected to mqtt server at {}'.format(self.server_ip))
+            self.__last_reset = time()
             self.connected = True
         except OSError as err:
             if self.debug: print(self.id, 'unable to connect to mqtt server \n', err)
@@ -65,6 +59,9 @@ class mqtt_client():
     def check_msg(self, blocking = False):
         try:
             self.is_alive()
+            # reset connection every xx minutes
+            if time() - self.__last_reset > self.__reset_time:
+                self.reconnect()
             if self.debug: print(self.id, 'checking for new messages')
             if blocking:
                 self.__mqtt_client.wait_msg()
@@ -75,7 +72,7 @@ class mqtt_client():
             self.connected = False
             if self.debug: print(self.id, 'no connection to mqtt server \n', err)
 
-    def send_msg(self, topic, message):
+    def publish(self, topic, message):
         tpc = topic.encode('utf-8')
         msg = message.encode('utf-8')
         try:
@@ -90,7 +87,7 @@ class mqtt_client():
     def reconnect(self):
         if self.debug: print(self.id, 'reconnecting now')
         self.__mqtt_client.disconnect()
-        sleep(1)
+        sleep_ms(1000)
         self.__connect()
 
     def disconnect(self):

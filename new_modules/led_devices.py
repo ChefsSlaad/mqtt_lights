@@ -59,6 +59,11 @@ class led_pwm():
     def off(self):
         self.value(0)
 
+    def blink(self, duration =500):
+        self.toggle()
+        sleep_ms(duration)
+        self.toggle()
+
     def toggle(self):
         if self.is_on:
             self.value(0)
@@ -172,6 +177,9 @@ class led_strip():
         self.transition['step'] = transition_step
         self.transition['remaining_steps'] = steps
 
+    def stop_transition(self):
+        self.transition['remaining_steps'] = 0
+
     def next_step(self):
         # push the effect one step allong and update the effect
         transition = self.transition
@@ -197,8 +205,8 @@ class led_strip():
         next_state['state'] = "ON" # any effect only makes sense if the trip is on
         self.update(next_state)
 
-
     def update(self, update_state):
+        # check if state is a dict, then check if it is a json string
         if isinstance(update_state, dict):
             state = update_state
         elif isinstance(update_state, str):

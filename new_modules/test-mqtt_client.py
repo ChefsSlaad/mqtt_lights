@@ -1,6 +1,6 @@
 import unittest
 import os
-from time import time, sleep_ms
+from time import time, sleep_ms, localtime
 from urandom import getrandbits
 from ujson import loads, dumps
 import mqtt_client
@@ -17,6 +17,15 @@ debug_mqtt  = False
 
 messages  = ['hello world', '1', 'ON', 'True', 'False', '1.090',
              '~!@#$%^&*()_+{}[]|\:;""<>?/']
+
+
+def strftime():
+    t = time()
+    h = localtime()[3]
+    m = localtime()[4]
+    s = localtime()[5]
+    return '{:2}:{:2}:{:2}'.format(h,m,s)
+
 
 def getrandstr(size):
     letters = 'abcdefghijklmnopqrstuvwxyz!@#$%^&*(){}\][;:"''",.?/`-=]12345678901'
@@ -72,13 +81,13 @@ class mqtt_tests(unittest.TestCase):
         self.assertEqual(test_client.id, send_id)
         self.assertEqual(test_client.server_ip, real_server)
         self.assertEqual(test_client.topics, test_topics)
-        self.assertTrue(test_client.connected)
+
 
     def test_mqtt_send_recieve(self):
         global r_topic, r_message
         for m in messages:
             for t in test_topics:
-                self.sender.send_msg(t,m)
+                self.sender.publish(t,m)
                 self.reciev.wait_msg()
                 self.assertEqual(t, r_topic)
                 self.assertEqual(m, r_message)
@@ -89,7 +98,7 @@ class mqtt_tests(unittest.TestCase):
         recive_combos = list()
         topic_message_combos = list([(t,m) for t in test_topics for m in messages])
         for t, m in topic_message_combos:
-            self.sender.send_msg(t,m)
+            self.sender.publish(t,m)
         while len(recive_combos) != len(topic_message_combos):
             self.reciev.check_msg()
             recive_combos.append((r_topic,r_message))
@@ -101,29 +110,29 @@ class mqtt_tests(unittest.TestCase):
         self.broker.kill()
         for m in messages:
             for t in test_topics:
-                self.sender.send_msg(t,m)
-                self.assertFalse(self.sender.connected)
+                self.sender.publish(t,m)
+
 
     def test_recover_from_network_error(self):
         global r_topic, r_message
         for m in messages:
             for t in test_topics:
                 self.broker.kill()
-                self.sender.send_msg(t,m)
-#                print(self.sender)
-                self.assertFalse(self.sender.connected)
+                self.sender.publish(t,m)
+##                print(self.sender)
                 self.broker.start()
-                self.sender.send_msg(t,m)
+                self.sender.publish(t,m)
                 self.assertTrue(self.sender.connected)
 
     def test_load_stress_test(self):
         # send as many meaasages as possible in quick seccession
         global r_topic, r_message
-        no = 10000
+        no = 1000
         for i in range(no):
+            print(i, end = ' ')
             for t in test_topics:
                 m = getrandstr(getrandbits(8))
-                self.sender.send_msg(t,m)
+                self.sender.publish(t,m)
                 self.reciev.wait_msg()
                 self.assertEqual(t, r_topic)
                 self.assertEqual(m, r_message)
@@ -138,11 +147,12 @@ class mqtt_tests(unittest.TestCase):
         while time()-start < dur:
             for t in test_topics:
                 m = getrandstr(getrandbits(8))
-                self.sender.send_msg(t,m)
+                self.sender.publish(t,m)
                 self.reciev.check_msg()
 #                self.assertEqual(t, r_topic)
 #                self.assertEqual(m, r_message)
                 sleep_ms(200)
+                print(strftime())
 #                print('.', end ='')
 
 if __name__ == '__main__':
