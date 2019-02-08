@@ -71,10 +71,17 @@ class led_pwm():
             self.value(255)
 
 class led_strip():
-    def __init__(self, pins, topic, set_topic):
+    def __init__(self, pins, topic, set_topic, debug = False):
         self.type       = 'led_strip'
         self.topic      = topic
         self.set_topic  = set_topic
+        if debug:
+            from logger import logger
+            self.logger = logger()
+        else:
+            from logger import dummy_logger
+            self.logger = dummy_logger()
+
         self.transition = {'effect': 'fade',
                             'end_state':{},
                                  'step':{},
@@ -163,6 +170,7 @@ class led_strip():
         # init_effect sets up a color effect (just a fade now) with a end state
         # a step (the difference between end and current devided by the no of steps)
         # and the number of steps remaining.
+        self.logger.log('starting effect {} with {} steps'.format(effect, steps))
         transition_step = {}
         if 'brightness' in end_state.keys():
             transition_step['brightness'] = (end_state['brightness'] - self.dic_state['brightness'])/steps
@@ -176,6 +184,7 @@ class led_strip():
         self.transition['end_state'] = end_state
         self.transition['step'] = transition_step
         self.transition['remaining_steps'] = steps
+        self.logger.log('transition effect', dumps(self.transition))
 
     def stop_transition(self):
         self.transition['remaining_steps'] = 0
@@ -194,7 +203,6 @@ class led_strip():
                 return
         if 'brightness' in end_state.keys():
             next_state['brightness'] = round(end_state['brightness'] - step['brightness']*remaining_steps)
-
         if 'white_value' in end_state.keys():
             next_state['white_value'] = round(end_state['white_value'] - step['white_value']*remaining_steps)
         if 'color' in end_state.keys():
@@ -204,6 +212,7 @@ class led_strip():
             next_state['color']['b'] = round(end_state['color']['b'] - step['color']['b']*remaining_steps)
         next_state['state'] = "ON" # any effect only makes sense if the trip is on
         self.update(next_state)
+        self.logger.log('effect step {}'.format(remaining_steps), dumps(next_state))
 
     def update(self, update_state):
         # check if state is a dict, then check if it is a json string
@@ -214,6 +223,7 @@ class led_strip():
                 state = loads(update_state)
             except ValueError:
                 return
+        self.logger.log('updating led strip with state', dumps(state))
         for key, value in state.items():
             self.dic_state[key] = value
         self.state = dumps(self.dic_state)

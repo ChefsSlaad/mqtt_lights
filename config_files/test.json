@@ -1,0 +1,19 @@
+{
+  "name": "woonkamer_tafel",  
+
+  "network": [
+    { "ssid": "home", 
+      "password": "Garuda180" 
+    }, 
+    { "ssid": "marc", 
+      "password": "marcisdabomb" 
+    }
+  ],
+
+  "valid_pins": [0, 2, 4, 5, 12, 13, 14, 15],
+
+  "mqtt_server": {
+    "server_adress": "10.0.0.10"
+    },
+}
+

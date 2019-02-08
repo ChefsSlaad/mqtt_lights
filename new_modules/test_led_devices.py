@@ -1,4 +1,5 @@
 import unittest
+import logger
 from ujson import loads, dumps
 
 import led_devices
@@ -134,11 +135,11 @@ class strip_tests(unittest.TestCase):
         rgbw = {'red': 12, 'green': 13, 'blue': 14 , 'white': 15}
         self.tpc = 'test/strip'
         self.set_tpc = 'test/strip/set'
+        self.logger = False
 
-        self.rgbw = led_devices.led_strip(rgbw, self.tpc, self.set_tpc)
-        self.ww = led_devices.led_strip(ww, self.tpc, self.set_tpc)
-        self.rgb = led_devices.led_strip(rgb, self.tpc, self.set_tpc)
-
+        self.rgbw = led_devices.led_strip(rgbw, self.tpc, self.set_tpc, self.logger)
+        self.ww = led_devices.led_strip(ww, self.tpc, self.set_tpc, self.logger)
+        self.rgb = led_devices.led_strip(rgb, self.tpc, self.set_tpc, self.logger)
 
     def tearDown(self):
         pass
@@ -245,6 +246,28 @@ class strip_tests(unittest.TestCase):
             r = self.rgbw.transition['remaining_steps']
             self.assertEqual(s, self.rgbw.transition['remaining_steps'])
 
+    def test_pins_progress(self):
+        end_state = {'brightness': 128, 'white_value': 200, 'color': {'r':255,'g':64, 'b':0}}
+        set_state = {'brightness': 0, 'white_value': 200, 'color': {'r':255,'g':64, 'b':0}}
+        steps = 3000
+        self.rgbw.update(set_state)
+        self.rgbw.init_effect(end_state, steps = steps)
+        red_led = self.rgbw.red_led
+        gre_led = self.rgbw.green_led
+        blu_led = self.rgbw.blue_led
+        r = 0
+        g = 0
+        b = 0
+        for s in range(steps):
+            self.rgbw.next_step()
+#            print('r', r, self.rgbw.red_led.value() , 'g', g, self.rgbw.green_led.value(), 'b', b, self.rgbw.blue_led.value() )
+            self.assertTrue(red_led.value() >= r)
+            self.assertTrue(gre_led.value() >= g)
+            self.assertTrue(blu_led.value() >= b)
+            r = self.rgbw.red_led.value()
+            g = self.rgbw.green_led.value()
+            b = self.rgbw.blue_led.value()
+
     def test_strip_update_rgb(self):
         strip = self.rgb
         state = {'state':'ON', 'brightness': 0, 'color': {'r':0,'g':0, 'b':0}}
@@ -265,6 +288,7 @@ class strip_tests(unittest.TestCase):
                         self.assertEqual(strip.red_led.value(), R)
                         self.assertEqual(strip.green_led.value(), G)
                         self.assertEqual(strip.blue_led.value(), B)
+
 
 
 

@@ -9,6 +9,10 @@ from machine import reset, Pin
 
 validpins = (0, 2, 4, 5, 12, 13, 14, 15)
 
+networks = (('home', 'Garuda180'),
+            ('marc', 'marcisdabomb'))
+
+
 print('turning off all pins')
 for p in validpins:
     pin = Pin(p, Pin.OUT)

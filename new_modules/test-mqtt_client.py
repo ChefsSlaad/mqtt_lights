@@ -3,8 +3,11 @@ import os
 from time import time, sleep_ms, localtime
 from urandom import getrandbits
 from ujson import loads, dumps
+
+
 import mqtt_client
 
+import logger
 test_topics = ['test/test', 'test/test2', 'mytest']
 send_id     = 'test_sender'
 recv_id     = 'test_reciever'
@@ -13,7 +16,7 @@ real_server = '127.0.0.1'
 mqtt_port   = 1883
 r_topic     = None
 r_message   = None
-debug_mqtt  = False
+debug_mqtt  = True
 
 messages  = ['hello world', '1', 'ON', 'True', 'False', '1.090',
              '~!@#$%^&*()_+{}[]|\:;""<>?/']
@@ -59,9 +62,10 @@ class mqtt_tests(unittest.TestCase):
         global r_topic, r_message
         r_topic = None
         r_message = None
+        self.logger = logger.logger()
         self.broker = mqtt_broker(mqtt_port)
-        self.sender = mqtt_client.mqtt_client(test_topics, send_id, real_server, mqtt_port, callback = None, debug = debug_mqtt)
-        self.reciev = mqtt_client.mqtt_client(test_topics, recv_id, real_server, mqtt_port, callback = test_callback, debug = debug_mqtt)
+        self.sender = mqtt_client.mqtt_client(test_topics, send_id, real_server, mqtt_port, callback = None, debug = debug_mqtt, logger = self.logger)
+        self.reciev = mqtt_client.mqtt_client(test_topics, recv_id, real_server, mqtt_port, callback = test_callback, debug = debug_mqtt, logger = self.logger)
 
     def tearDown(self):
         self.sender.disconnect()
