@@ -1,9 +1,19 @@
+# tests written for this module
+
+#led devices controls led strips and individual (single color) leds
+# there are two classes:
+#led_pwm - a basic class to control singe led's; mincluding dimming
+#led_strip: a class with multiple led_pwm devices that can be controlled as a led strip
+#it includes methods to update strips, as wel as natural dimming and effects
+#
 from machine import Pin, PWM
 from ujson import loads, dumps
 from time import sleep_ms
 import rgb_hsv
 
 class led_pwm():
+# led_pwm is a basic constructor for
+
     def __init__(self, pin, topic = None, set_topic = None, inverted = False):
         if pin not in (0, 2, 4, 5, 12, 13, 14, 15,):
             raise ValueError ("pin must be 0, 2, 4, 5, 12, 13, 14, or 15")
@@ -59,7 +69,7 @@ class led_pwm():
     def off(self):
         self.value(0)
 
-    def blink(self, duration =500):
+    def blink(self, duration = 500):
         self.toggle()
         sleep_ms(duration)
         self.toggle()
