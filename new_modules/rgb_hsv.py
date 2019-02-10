@@ -1,5 +1,5 @@
 def RGB_2_HSV(RGB):
-    ''' Converts an integer RGB tuple (value range from 0 to 255) to an HSV tuple '''
+    """ Converts an integer RGB tuple (value range from 0 to 255) to an HSV tuple """
 
     # Unpack the tuple for readability
     R, G, B = RGB
@@ -34,7 +34,7 @@ def RGB_2_HSV(RGB):
 
 
 def HSV_2_RGB(HSV):
-    ''' Converts an integer HSV tuple (value range from 0 to 255) to an RGB tuple '''
+    """ Converts an integer HSV tuple (value range from 0 to 255) to an RGB tuple """
 
     # Unpack the HSV tuple for readability
     H, S, V = HSV
@@ -50,7 +50,7 @@ def HSV_2_RGB(HSV):
     region = H // 43;
 
     # Find remainder part, make it from 0-255
-    remainder = (H - (region * 43)) * 6; 
+    remainder = (H - (region * 43)) * 6;
 
     # Calculate temp vars, doing integer multiplication
     P = (V * (255 - S)) >> 8;
@@ -69,9 +69,9 @@ def HSV_2_RGB(HSV):
 
     elif region == 3:
         return (P, Q, V)
-        
+
     elif region == 4:
         return (T, P, V)
 
-    else: 
+    else:
         return (V, P, Q)

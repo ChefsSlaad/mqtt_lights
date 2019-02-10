@@ -5,7 +5,7 @@ import gc
 import webrepl
 from machine import reset, Pin
 
-validpins = (0, 2, 4, 5, 12, 13, 14, 15)
+validpins = (0, 4, 5, 12, 13, 14, 15)
 
 print('turning off all pins')
 for p in validpins:
@@ -13,7 +13,7 @@ for p in validpins:
     pin.value(0)
     print('pin {} off'.format(p), end=' ')
 print()
-    
+
 print('starting webrepl')
 webrepl.start()
 print('starting garbage collector')
