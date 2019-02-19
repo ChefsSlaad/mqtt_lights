@@ -11,21 +11,31 @@ from ujson import loads, dumps
 from time import sleep_ms
 import rgb_hsv
 
+led_default = {"pin":       0,
+               "inverted":  False,
+               "type":      "led",
+               "topic":     "test",
+               "set_topic": "test/set",
+               "debug":      False
+               }
+
+
 class led_pwm():
 # led_pwm is a basic constructor for
 
-    def __init__(self, pin, topic = None, set_topic = None, inverted = False):
+    def __init__(self, config = {}):
+        pin = config.get("pin", 0)
         if pin not in (0, 2, 4, 5, 12, 13, 14, 15,):
             raise ValueError ("pin must be 0, 2, 4, 5, 12, 13, 14, or 15")
-        self._pwm_device =  PWM(Pin(pin, Pin.OUT), freq = 400, duty = 0)
+        self._pwm_device = PWM(Pin(pin, Pin.OUT), freq = 500, duty = 0)
+        self.inverted    = config.get("inverted", False)
+        self.is_on       = False
         self.val         = 0
-        self.type        = 'led'
         self.state       = 'OFF'
         self.old_state   = None
-        self.topic       = topic
-        self.set_topic   = set_topic
-        self.inverted    = inverted
-        self.is_on       = False
+        self.type        = config.get("type", "led")
+        self.topic       = config.get("state_topic", None)
+        self.set_topic   = config.get("command_topic", None)
 
         self.value(0)
 
@@ -81,10 +91,10 @@ class led_pwm():
             self.value(255)
 
 class led_strip():
-    def __init__(self, pins, topic, set_topic, debug = False):
-        self.type       = 'led_strip'
-        self.topic      = topic
-        self.set_topic  = set_topic
+    def __init__(self, config = {}, debug = False):
+        self.type       = config.get("type", "led_strip")
+        self.topic      = config.get("state_topic", "test")
+        self.set_topic  = config.get("command_topic", "test/set")
         if debug:
             from logger import logger
             self.logger = logger()
@@ -102,16 +112,16 @@ class led_strip():
                          # 'color_temp: None,
                             # 'effect': effect,
                          }
-
+        pins = config.get("pin")
         if 'red' in pins and 'green' in pins and 'blue' in pins:
-            self.red_led   = led_pwm(pins['red'])
-            self.green_led = led_pwm(pins['green'])
-            self.blue_led  = led_pwm(pins['blue'])
+            self.red_led   = led_pwm({"pin" : pins['red']})
+            self.green_led = led_pwm({"pin" : pins['green']})
+            self.blue_led  = led_pwm({"pin" : pins['blue']})
             self.dic_state['color'] = {'r':0, 'g':0, 'b':0 }
             self.dic_state['brightness'] = 0
 
         if 'white' in pins:
-            self.white_led = led_pwm(pins['white'])
+            self.white_led = led_pwm({"pin" : pins['white']})
             self.dic_state['white_value'] = 0
 
         self.state     = dumps(self.dic_state)

@@ -1,10 +1,12 @@
 from time import time
 from umqtt.simple import MQTTClient
 
-mqtt_conf = { "server_adress": "10.0.0.10",
-                      "topic": "logger",
-                      "client_id": "logger"
-                    }
+#mqtt_conf = { "type":          "logger",
+#              "server_adress": "10.0.0.10",
+#              "topic":         "logger",
+#              "client_id":     "logger",
+#              "active":        True,
+#             }
 
 def print_time(the_time):
     secs, ms = divmod(the_time, 1)
@@ -19,14 +21,18 @@ class dummy_logger():
         pass
 
 class logger():
-    def __init__(self, mqtt_config = mqtt_conf, active = True):
+    def __init__(self, config = {} ):
         self.start_time = time()
-        self.active    = active
+        self.active    = config.get("active", True)
         self.buffer = []
         self.mqtt_client = None
-        self.topic = mqtt_config["topic"].encode("utf-8")
-        self.activate(active)
-        self.configure_mqtt(mqtt_config)
+        self.type = config.get("type", "logger")
+        self.topic = config.get("topic", "logger").encode("utf-8")
+        self.server_adress = config.get("server_adress", "10.0.0.10")
+        self.client_id = config.get("client_id", "logger")
+
+        self.activate(self.active)
+        self.connect()
 
 
     def __exit__(self):
@@ -49,9 +55,10 @@ class logger():
             self.active = active
         return self.active
 
-    def configure_mqtt(self, mqtt_config):
-        self.mqtt_client = MQTTClient(mqtt_config["client_id"], mqtt_config["server_adress"])
+    def connect(self):
+        self.mqtt_client = MQTTClient(self.client_id,self.server_adress)
         self.mqtt_client.connect()
+
 
     def log(self, *logstrings):
 # logs to a file with format hh:mm:ss:mss    log message

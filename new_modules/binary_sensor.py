@@ -1,31 +1,41 @@
 from machine import Pin
-from time import time, sleep_ms
+from time import time
 
 
-default_config = {"pin":       0,
-                  "inverted":  False,
-                  "type":      "binary_sensor",
-                  "topic":     "test",
-                  "set_topic": "test/set"
-                  }
+
+#default_config = {"pin":       0,
+#                  "inverted":  False,
+#                  "type":      "binary_sensor",
+#                  "topic":     "test",
+#                  "set_topic": "test/set",
+#                  "debug":      False
+#                  }
 
 
 class binary_sensor():
-    def __init__(self, config = default_config, timeout_on = 5, timeout_off = 10):
-        if config["pin"] not in (0, 4, 5, 12, 13, 14, 15, 16):
+    def __init__(self, config = {}):
+        pin = config.get("pin", 0)
+        if pin not in (0, 4, 5, 12, 13, 14, 15, 16):
             raise ValueError ("pin must be 0, 4, 5, 12, 13, 14, 15 or 16")
-        self._sensor   =  Pin(config['pin'], Pin.IN)
+        self._sensor   =  Pin(pin, Pin.IN)
         self._last_sens = time()
-        self._sens_off = timeout_off
-        self._sens_on  = timeout_on
+        self._sens_off = config.get("timeout_off", 10)
+        self._sens_on  = config.get("timeout_on", 5)
         self.is_on     = False
         self.value     = 0
         self.old_value = None
         self.state     = 'OFF'  #for most devices should be 'ON' or 'OFF'
         self.old_state = None
-        self.type      = config['type']
-        self.topic     = config['topic']
-        self.set_topic = config['set_topic']
+        self.type      = config.get('type','led')
+        self.topic     = config.get("state_topic", None)
+        self.set_topic = config.get("command_topic", None)
+
+        if config.get("debug", False):
+            from logger import logger
+            self.logger =    logger()
+        else:
+            from logger import dummy_logger
+            self.logger =    dummy_logger()
 
 
     def __str__(self):
@@ -60,3 +70,5 @@ class binary_sensor():
 
         else:
             self._last_sens = time()
+
+        self.logger.log(self.__str__())

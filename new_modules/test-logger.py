@@ -18,8 +18,9 @@ messages  = ['hello world', '1', 'ON', 'True', 'False', '1.090',
              '~!@#$%^&*()_+{}[]|\:;""<>?/']
 
 mqtt_conf1 = { "server_adress": server,
-               "topic": log_topic,
-               "client_id": "logger"
+               "topic":         log_topic,
+               "client_id":     "logger",
+               "active":        True
              }
 
 def strftime():

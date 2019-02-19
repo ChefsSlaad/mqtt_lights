@@ -6,9 +6,13 @@ import led_devices
 
 #machine module mocked and installed in ./micropython/lib
 
-led_pin       = 15
-led_topic     = 'myledtest'
-led_set_topic = 'myledtest/set'
+led_config = {"pin":       15,
+              "inverted":  False,
+              "type":      "led",
+              "topic":     "myledtest",
+              "set_topic": "myledtest/set",
+              "debug":      False
+              }
 
 def rgb_to_pins(state):
     R = state['color']['r']
@@ -18,9 +22,11 @@ def rgb_to_pins(state):
     R, G, B = led_devices.rgb_hsv.HSV_2_RGB((HSV[0],HSV[1],state['brightness']))
     return R, G, B
 
+
+
 class led_tests(unittest.TestCase):
     def setUp(self):
-        self.single_led = led_devices.led_pwm(pin = led_pin, topic = led_topic, set_topic = led_set_topic)
+        self.single_led = led_devices.led_pwm(led_config)
 
     def tearDown(self):
         pass
@@ -31,8 +37,8 @@ class led_tests(unittest.TestCase):
         self.assertEqual(led.type, 'led', 'led_pwm.type is not "led"')
         self.assertEqual(led.state, 'OFF', 'led_pwm.state is not "OFF"')
         self.assertEqual(led.is_on, False, 'led_pwm.is_on is not False')
-        self.assertEqual(led.topic, led_topic, 'led_pwm.topic is not correct')
-        self.assertEqual(led.set_topic, led_set_topic, 'led_pwm.set_topic is not correct')
+        self.assertEqual(led.topic, led_config["topic"], 'led_pwm.topic is not correct')
+        self.assertEqual(led.set_topic, led_config["set_topic"], 'led_pwm.set_topic is not correct')
         self.assertEqual(led.inverted, False, 'led_pwm.inverted is not False')
 
     def test_led_print(self):
@@ -48,7 +54,8 @@ class led_tests(unittest.TestCase):
             self.assertEqual(self.single_led.value(v), v, msg='value() does not return {}'.format(v))
 
     def test_led_inverted(self):
-        inv_led = led_devices.led_pwm(pin = led_pin, topic = led_topic, set_topic = led_set_topic, inverted = True)
+        inv_config = {"pin": 15, "inverted": True}
+        inv_led = led_devices.led_pwm(inv_config)
         self.assertEqual(inv_led.val, 0, 'led_pwm.val is not 0')
         self.assertEqual(inv_led.type, 'led', 'led_pwm.type is not "led"')
         self.assertEqual(inv_led.state, 'OFF', 'led_pwm.state is not "OFF"')
@@ -130,16 +137,19 @@ class led_tests(unittest.TestCase):
 
 class strip_tests(unittest.TestCase):
     def setUp(self):
-        rgb  = {'red': 12, 'green': 13, 'blue': 14 }
-        ww   = {'white': 15}
-        rgbw = {'red': 12, 'green': 13, 'blue': 14 , 'white': 15}
         self.tpc = 'test/strip'
         self.set_tpc = 'test/strip/set'
         self.logger = False
+        rgb  = {'red': 12, 'green': 13, 'blue': 14 }
+        ww   = {'white': 15}
+        rgbw = {'red': 12, 'green': 13, 'blue': 14 , 'white': 15}
+        rgb_config  = {"pin": rgb, "type": "led_strip", "state_topic": self.tpc, "command_topic": self.set_tpc}
+        ww_config   = {"pin": ww, "type": "led_strip", "state_topic": self.tpc, "command_topic": self.set_tpc}
+        rgbw_config  = {"pin": rgbw, "type": "led_strip", "state_topic": self.tpc, "command_topic": self.set_tpc}
 
-        self.rgbw = led_devices.led_strip(rgbw, self.tpc, self.set_tpc, self.logger)
-        self.ww = led_devices.led_strip(ww, self.tpc, self.set_tpc, self.logger)
-        self.rgb = led_devices.led_strip(rgb, self.tpc, self.set_tpc, self.logger)
+        self.rgbw = led_devices.led_strip(rgbw_config, self.logger)
+        self.ww = led_devices.led_strip(ww_config, self.logger)
+        self.rgb = led_devices.led_strip(rgb_config, self.logger)
 
     def tearDown(self):
         pass

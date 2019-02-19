@@ -5,11 +5,12 @@ import binary_sensor
 
 #machine module mocked and installed in ./micropython/lib
 
-default_config = {"pin":       0,
-                  "inverted":  False,
-                  "type":      "binary_sensor",
-                  "topic":     "mytest",
-                  "set_topic": "mytest/set"
+default_config = {"pin":           0,
+                  "inverted":      False,
+                  "type":          "binary_sensor",
+                  "state_topic":   "mytest",
+                  "command_topic": "mytest/set",
+                  "debug":         False
                   }
 
 
