@@ -1,6 +1,7 @@
 import unittest
 import logger
 from ujson import loads, dumps
+from time import sleep_ms, time
 
 import led_devices
 
@@ -9,8 +10,8 @@ import led_devices
 led_config = {"pin":       15,
               "inverted":  False,
               "type":      "led",
-              "topic":     "myledtest",
-              "set_topic": "myledtest/set",
+              "state_topic":     "myledtest",
+              "command_topic": "myledtest/set",
               "debug":      False
               }
 
@@ -37,8 +38,8 @@ class led_tests(unittest.TestCase):
         self.assertEqual(led.type, 'led', 'led_pwm.type is not "led"')
         self.assertEqual(led.state, 'OFF', 'led_pwm.state is not "OFF"')
         self.assertEqual(led.is_on, False, 'led_pwm.is_on is not False')
-        self.assertEqual(led.topic, led_config["topic"], 'led_pwm.topic is not correct')
-        self.assertEqual(led.set_topic, led_config["set_topic"], 'led_pwm.set_topic is not correct')
+        self.assertEqual(led.topic, led_config["state_topic"], 'led_pwm.topic is not correct')
+        self.assertEqual(led.set_topic, led_config["command_topic"], 'led_pwm.set_topic is not correct')
         self.assertEqual(led.inverted, False, 'led_pwm.inverted is not False')
 
     def test_led_print(self):
@@ -139,7 +140,6 @@ class strip_tests(unittest.TestCase):
     def setUp(self):
         self.tpc = 'test/strip'
         self.set_tpc = 'test/strip/set'
-        self.logger = False
         rgb  = {'red': 12, 'green': 13, 'blue': 14 }
         ww   = {'white': 15}
         rgbw = {'red': 12, 'green': 13, 'blue': 14 , 'white': 15}
@@ -147,9 +147,9 @@ class strip_tests(unittest.TestCase):
         ww_config   = {"pin": ww, "type": "led_strip", "state_topic": self.tpc, "command_topic": self.set_tpc}
         rgbw_config  = {"pin": rgbw, "type": "led_strip", "state_topic": self.tpc, "command_topic": self.set_tpc}
 
-        self.rgbw = led_devices.led_strip(rgbw_config, self.logger)
-        self.ww = led_devices.led_strip(ww_config, self.logger)
-        self.rgb = led_devices.led_strip(rgb_config, self.logger)
+        self.rgbw = led_devices.led_strip(rgbw_config)
+        self.ww = led_devices.led_strip(ww_config)
+        self.rgb = led_devices.led_strip(rgb_config)
 
     def tearDown(self):
         pass
@@ -202,6 +202,16 @@ class strip_tests(unittest.TestCase):
         self.assertEqual(self.rgbw.dic_state, state_rgbw)
         self.assertEqual(self.ww.dic_state, state_ww)
         self.assertEqual(self.rgb.dic_state, state_rgb)
+    def check_update_with_transition(self):
+        end_state = {'transition': 'fade', 'brightness': 128, 'white_value': 200, 'color': {'r':255,'g':255, 'b':0}}
+
+        self.rgbw.update(end_state)
+        for i in range(3000):
+            last_state = self.rgbw.dic_state
+            print('.', end = '')
+            time.sleep_ms(100)
+            self.assertNotEqual(self.rgbw.dic_state, last_state)
+        self.assertEqual(self.rgbw.dic_state, end_state)
 
     def test_strip_read_state(self):
         state_rgbw = {'brightness': 0, 'state':'OFF', 'color': {'r':0,'g':0, 'b':0}, 'white_value':0}
@@ -247,14 +257,15 @@ class strip_tests(unittest.TestCase):
         self.assertEqual(end_state, self.rgbw.transition['end_state'])
         self.assertEqual(steps, self.rgbw.transition['remaining_steps'])
 
-    def test_next_step(self):
-        end_state = {'brightness': 128, 'white_value': 200, 'color': {'r':255,'g':255, 'b':0}}
-        steps = 500
-        self.rgbw.init_effect(end_state, steps = steps)
-        for s in range(steps-1,-1, -1):
-            self.rgbw.next_step()
-            r = self.rgbw.transition['remaining_steps']
-            self.assertEqual(s, self.rgbw.transition['remaining_steps'])
+    def test_update_with_transition(self):
+        end_state = {'transition': 'fade', 'duration':30, 'brightness': 128, 'white_value': 200, 'color': {'r':255,'g':255, 'b':0}}
+        self.rgbw.update(end_state)
+        end_time = time() + end_state['duration']
+        while end_time > time():
+            last_state = self.rgbw.dic_state
+            print('.', end='')
+            sleep_ms(500)
+            self.rgbw.check_state()
 
     def test_pins_progress(self):
         end_state = {'brightness': 128, 'white_value': 200, 'color': {'r':255,'g':64, 'b':0}}
@@ -286,6 +297,7 @@ class strip_tests(unittest.TestCase):
             a, b, c = color
             state['color'][a] = 255
             for col2 in range(1,256, 2):
+                print('.', end='')
                 state['color']['b'] = col2
                 for col3 in range(1,256, 5):
                     state['color']['c'] = col3
@@ -298,8 +310,6 @@ class strip_tests(unittest.TestCase):
                         self.assertEqual(strip.red_led.value(), R)
                         self.assertEqual(strip.green_led.value(), G)
                         self.assertEqual(strip.blue_led.value(), B)
-
-
 
 
 if __name__ == '__main__':

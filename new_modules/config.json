@@ -16,7 +16,8 @@
   "valid_pins": [0, 2, 4, 5, 12, 13, 14, 15],
 
   "mqtt_server": {
-    "server_adress": "10.0.0.10"
+    "server_adress": "10.0.0.10",
+    "debug": true
     },
 
   "led_strip": {
@@ -29,23 +30,6 @@
           "blue":  12,
           "white": 14
         },
-      "debug": true
-      },
-
-  "switch": {
-      "type": "switch",
-      "state_topic":   "home/woonkamer/schemerlamp",
-      "command_topic": "home/woonkamer/schemerlamp/set",
-      "pin": 5,
-      "high_on": false,
-      "debug": true
-      },
-
-  "button": {
-      "type": "button",
-      "state_topic":   "home/woonkamer/schemerlamp/knop",
-      "pin": 2,
-      "high_on": false,
       "debug": true
       },
 
@@ -64,5 +48,5 @@
       "pin": 4,
       "high_on": false,
       "debug": true
-      }
+    },
 }

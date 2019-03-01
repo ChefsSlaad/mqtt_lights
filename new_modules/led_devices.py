@@ -8,17 +8,16 @@
 #
 from machine import Pin, PWM
 from ujson import loads, dumps
-from time import sleep_ms
+from time import time
 import rgb_hsv
 
-led_default = {"pin":       0,
-               "inverted":  False,
-               "type":      "led",
-               "topic":     "test",
-               "set_topic": "test/set",
-               "debug":      False
+led_default = {"pin":           0,
+               "inverted":      False,
+               "type":          "led",
+               "state_topic":   "test",
+               "command_topic": "test/set",
+               "debug":          False
                }
-
 
 class led_pwm():
 # led_pwm is a basic constructor for
@@ -73,16 +72,14 @@ class led_pwm():
         elif state in off_states:
             self.off()
 
+    def check_state(self):
+        pass
+
     def on(self):
         self.value(255)
 
     def off(self):
         self.value(0)
-
-    def blink(self, duration = 500):
-        self.toggle()
-        sleep_ms(duration)
-        self.toggle()
 
     def toggle(self):
         if self.is_on:
@@ -91,11 +88,12 @@ class led_pwm():
             self.value(255)
 
 class led_strip():
-    def __init__(self, config = {}, debug = False):
+    def __init__(self, config = {}):
         self.type       = config.get("type", "led_strip")
         self.topic      = config.get("state_topic", "test")
         self.set_topic  = config.get("command_topic", "test/set")
-        if debug:
+        self.debug      = config.get("debug", False)
+        if self.debug:
             from logger import logger
             self.logger = logger()
         else:
@@ -204,6 +202,7 @@ class led_strip():
         self.transition['end_state'] = end_state
         self.transition['step'] = transition_step
         self.transition['remaining_steps'] = steps
+        self.transition['end_time'] = round(time() + (steps / 10))
         self.logger.log('transition effect', dumps(self.transition))
 
     def stop_transition(self):
@@ -216,11 +215,6 @@ class led_strip():
         step = self.transition['step']
         remaining_steps = self.transition['remaining_steps']
         next_state = {}
-        remaining_steps = remaining_steps - 1
-        self.transition['remaining_steps'] = remaining_steps
-        if remaining_steps < 0:
-                self.transition['remaining_steps'] = 0
-                return
         if 'brightness' in end_state.keys():
             next_state['brightness'] = round(end_state['brightness'] - step['brightness']*remaining_steps)
         if 'white_value' in end_state.keys():
@@ -234,8 +228,20 @@ class led_strip():
         self.update(next_state)
         self.logger.log('effect step {}'.format(remaining_steps), dumps(next_state))
 
+    def time_to_steps_remaining(self, now = None):
+        if now == None:
+            now = time()
+        remaining_time = self.transition['end_time'] - now
+        return max(0, round(remaining_time*10))
+
+    def check_state(self):
+        if self.transition['remaining_steps'] > 0:
+            self.transition['remaining_steps'] = self.time_to_steps_remaining()
+            self.next_step()
+
     def update(self, update_state):
         # check if state is a dict, then check if it is a json string
+        # in invalid, exit the function
         if isinstance(update_state, dict):
             state = update_state
         elif isinstance(update_state, str):
@@ -244,6 +250,11 @@ class led_strip():
             except ValueError:
                 return
         self.logger.log('updating led strip with state', dumps(state))
+
+        if "transition" in state.keys():
+            self.init_effect(state, state["transition"], state["duration"]*10)
+            self.update({'state':'ON'})
+            return
         for key, value in state.items():
             self.dic_state[key] = value
         self.state = dumps(self.dic_state)

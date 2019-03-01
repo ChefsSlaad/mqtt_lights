@@ -42,7 +42,7 @@ class mqtt_client():
             self.__last_reset = time()
             self.connected = True
         except OSError as err:
-            self.logger.log(self.id, 'unable to connect to mqtt server \n', err)
+            print(self.id, 'unable to connect to mqtt server \n', err)
             self.connected = False
 
     def subscribe(self, topic):

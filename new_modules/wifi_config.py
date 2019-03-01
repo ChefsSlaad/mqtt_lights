@@ -14,7 +14,7 @@ def activate_wifi(config_file = 'config.json'):
     try:
         if os.stat(config_file)[6] != 0:
             print('reading file', config_file)
-            with open(config_file) as read_file: 
+            with open(config_file) as read_file:
                 config = ujson.load(read_file)
     except OSError:
         pass
@@ -32,13 +32,13 @@ def scan_and_connect(networks = ({'ssid':'test','password':'test'})):
         print('.', end='')
         sleep(0.2)
     print()
-    print('found networks:', ', '.join(stations_ssid)) 
+    print('found networks:', ', '.join(stations_ssid))
 
     for net in networks:
         if 'ssid' in net and 'password' in net:
-            ssid = net['ssid'] 
+            ssid = net['ssid']
             psk = net['password']
-        
+
             if ssid in stations_ssid:
                 station.connect(ssid,psk)
                 print('connecting to wifi network {}'.format(ssid))
@@ -54,5 +54,4 @@ def scan_and_connect(networks = ({'ssid':'test','password':'test'})):
     print()
     ips = station.ifconfig()
     print(' IP adress {}\n netmask   {} \n gateway   {} \n dns       {}'.format(*ips))
-    print()    
-
+    print()
