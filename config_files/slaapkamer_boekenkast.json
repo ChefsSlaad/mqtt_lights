@@ -1,0 +1,43 @@
+{
+  "name": "slaapkamer",
+
+  "network": [
+    { "ssid": "home",
+      "password": "Garuda180"
+    },
+    { "ssid": "marc",
+      "password": "marcisdabomb"
+    },
+    { "ssid": "BonBini",
+      "password": "Rabootje"
+    }
+  ],
+
+  "valid_pins": [0, 2, 4, 5, 12, 13, 14, 15],
+
+  "mqtt_server": {
+    "server_adress": "10.0.0.10",
+    "debug": false
+    },
+
+  "led_strip": {
+      "type": "led_strip",
+      "state_topic":   "home/slaapkamer/kast/licht",
+      "command_topic": "home/slaapkamer/kast/licht/set",
+      "pin": {
+          "red":   12,
+          "green": 15,
+          "blue":  13,
+          "white": 14
+       },
+      "debug": false
+      },
+
+    "temp_sensor": {
+       "type": "temp_sensor",
+       "state_topic": "home/slaapkamer/kast/temperature",
+       "pin": 4,
+       "debug": false
+     },
+
+}

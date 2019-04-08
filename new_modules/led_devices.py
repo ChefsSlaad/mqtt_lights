@@ -11,15 +11,7 @@ from ujson import loads, dumps
 from time import time
 import rgb_hsv
 
-led_default = {"pin":           0,
-               "inverted":      False,
-               "type":          "led",
-               "state_topic":   "test",
-               "command_topic": "test/set",
-               "debug":          False
-               }
-
-class led_pwm():
+class led_pwm_simple():
 # led_pwm is a basic constructor for
 
     def __init__(self, config = {}):
@@ -28,20 +20,8 @@ class led_pwm():
             raise ValueError ("pin must be 0, 2, 4, 5, 12, 13, 14, or 15")
         self._pwm_device = PWM(Pin(pin, Pin.OUT), freq = 500, duty = 0)
         self.inverted    = config.get("inverted", False)
-        self.is_on       = False
         self.val         = 0
-        self.state       = 'OFF'
-        self.old_state   = None
-        self.type        = config.get("type", "led")
-        self.topic       = config.get("state_topic", None)
-        self.set_topic   = config.get("command_topic", None)
-
         self.value(0)
-
-    def __str__(self):
-        variables = (self.is_on, self.inverted, self.val, self._pwm_device.duty())
-        log_str = 'is_on: {}, inverted: {}, value: {}, duty: {}'
-        return log_str.format(*variables)
 
     def value(self, value = None):
         if value == None:
@@ -49,12 +29,6 @@ class led_pwm():
         elif  0 > value > 255:
             raise ValueError ('value must be between 0 and 255')
         self.val = value
-        if value == 0:
-            self.is_on = False
-            self.state = 'OFF'
-        else:
-            self.is_on = True
-            self.state = 'ON'
         if self.inverted:
             pin_val = 1023 - int(round(value*4.012))
         else:
@@ -62,30 +36,6 @@ class led_pwm():
         self._pwm_device.duty(pin_val)
         return self.val
 
-    def update(self, state):
-        if isinstance(state, str):
-            state = state.lower() # convert value to lower case
-        on_states  = ('true',   'on', True,  1, '1')
-        off_states = ('false', 'off', False, 0, '0')
-        if state in on_states:
-            self.on()
-        elif state in off_states:
-            self.off()
-
-    def check_state(self):
-        pass
-
-    def on(self):
-        self.value(255)
-
-    def off(self):
-        self.value(0)
-
-    def toggle(self):
-        if self.is_on:
-            self.value(0)
-        else:
-            self.value(255)
 
 class led_strip():
     def __init__(self, config = {}):
@@ -112,14 +62,14 @@ class led_strip():
                          }
         pins = config.get("pin")
         if 'red' in pins and 'green' in pins and 'blue' in pins:
-            self.red_led   = led_pwm({"pin" : pins['red']})
-            self.green_led = led_pwm({"pin" : pins['green']})
-            self.blue_led  = led_pwm({"pin" : pins['blue']})
+            self.red_led   = led_pwm_simple({"pin" : pins['red']})
+            self.green_led = led_pwm_simple({"pin" : pins['green']})
+            self.blue_led  = led_pwm_simple({"pin" : pins['blue']})
             self.dic_state['color'] = {'r':0, 'g':0, 'b':0 }
             self.dic_state['brightness'] = 0
 
         if 'white' in pins:
-            self.white_led = led_pwm({"pin" : pins['white']})
+            self.white_led = led_pwm_simple({"pin" : pins['white']})
             self.dic_state['white_value'] = 0
 
         self.state     = dumps(self.dic_state)
@@ -148,11 +98,8 @@ class led_strip():
        except AttributeError:
            w = None
 
-       log_str = 'red {}, green {}, blue {}, white {}, state {}'
-       return log_str.format(r, g, b, w, state)
-
-       print('led states', 'rgb', (self.red_led.val, self.green_led.val, self.blue_led.val),
-          'w', self.white_led.val)
+       log_str = 'type {} red {} green {} blue {} white {} state {}'
+       return log_str.format(self.type, r, g, b, w, state)
 
     def _set_rgb(self, state):
 
@@ -235,6 +182,7 @@ class led_strip():
         return max(0, round(remaining_time*10))
 
     def check_state(self):
+        self.old_state = self.state
         if self.transition['remaining_steps'] > 0:
             self.transition['remaining_steps'] = self.time_to_steps_remaining()
             self.next_step()
@@ -250,9 +198,9 @@ class led_strip():
             except ValueError:
                 return
         self.logger.log('updating led strip with state', dumps(state))
-
         if "transition" in state.keys():
-            self.init_effect(state, state["transition"], state["duration"]*10)
+            print(state)
+            self.init_effect(state, state["effect"], state["transition"]*10)
             self.update({'state':'ON'})
             return
         for key, value in state.items():

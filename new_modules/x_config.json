@@ -49,4 +49,13 @@
       "high_on": false,
       "debug": true
     },
+
+    "temp_sensor": {
+       "type": "temp_sensor",
+       "state_topic": "home/slaapkamer/kast/temp",
+       "pin": 4,
+       "debug": false
+     },
+ }
+
 }

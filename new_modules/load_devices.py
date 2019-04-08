@@ -1,18 +1,8 @@
-import time
-
-from os import stat, listdir
-from ujson import load
-import logger
-#from ujson import load, loads, dumps
-
-
-# issue: config file contails wifi config. logger uses wifi
-# logger is called in loadwifi function
-logger = logger.logger()
-
-
+import gc
 
 def read_config(config_file = None):
+    from os import stat, listdir
+    from ujson import load
     if config_file == None: #if no file is not specified, read the first config file in the root dir
         config_file = [f for f in sorted(listdir()) if f[-5:] == '.json'][0]
     try:
@@ -28,11 +18,13 @@ def read_config(config_file = None):
 
 def load_wifi(config):
     import wifi_config
+    gc.collect()
     if 'network' in config:
         networks = config['network']
         wifi_config.scan_and_connect(networks)
 
 def load_mqtt(config, topics, callback):
+    gc.collect()
     import mqtt_client
     # create a list of all the topics to subscribe to (aka command topics)
     name = config.get('name', 'default_client')
@@ -46,7 +38,7 @@ def load_devices(configuration):
     devices = []
     topics = []
     for id, conf in configuration.items():
-        print(id, conf)
+        gc.collect()
         if isinstance(conf, dict) and "type" in conf.keys():
             if conf["type"] == "led":
                 from led_devices import led_pwm
@@ -59,5 +51,8 @@ def load_devices(configuration):
             elif conf["type"] == "binary_sensor":
                 from binary_sensor import binary_sensor
                 devices.append(binary_sensor(conf))
-            print("found a {} /n {}".format(conf["type"], devices[-1]))
+            elif conf["type"] == "temp_sensor":
+                from temp_sensor import temp_sensor
+                devices.append(temp_sensor(conf))
+            print("found a {} \n   {}".format(conf["type"], devices[-1]))
     return devices, topics

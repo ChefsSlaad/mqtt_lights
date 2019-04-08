@@ -1,29 +1,26 @@
 from time import sleep_ms
 from json import loads, dumps
 
-import logger
 import load_devices
 
-
-config  = None
 mqtt    = None
 devices = None
 
 def init():
     config = load_devices.read_config()
-    load_devices.load_wifi(config)
     devices, topics = load_devices.load_devices(config)
+    load_devices.load_wifi(config)
     mqtt = load_devices.load_mqtt(config, topics, callback = mqtt_on_message)
     return config, mqtt, devices
 
 def mqtt_on_message(mqtt_topic, mqtt_message):
     global devices
-    global logger
     topic = mqtt_topic.decode('utf-8')
     message = mqtt_message.decode('utf-8')
     for dev in devices:
         if dev.set_topic == topic:
             dev.update(message)
+            mqtt.publish(dev.topic, dev.state)
 
 def devices_check_state(devices, mqtt):
     for dev in devices:
@@ -38,6 +35,10 @@ def main_loop(devices, mqtt):
         mqtt.check_msg()
         sleep_ms(500)
 
-if __name__ == '__main__':
+def run_main_loop():
+    global mqtt, devices
     config, mqtt, devices = init()
     main_loop(devices, mqtt)
+
+if __name__ == '__main__':
+    run_main_loop()
