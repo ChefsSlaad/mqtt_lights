@@ -4,7 +4,7 @@
 import gc
 import webrepl
 import network
-import time
+from time import sleep
 from machine import reset, Pin
 
 validpins = (0, 2, 4, 5, 12, 13, 14, 15)
@@ -20,22 +20,21 @@ for p in validpins:
     print('pin {} off'.format(p), end=' ')
 print()
 
-    
-accesspoint = network.WLAN(network.AP_IF)   
+
+accesspoint = network.WLAN(network.AP_IF)
 station = network.WLAN(network.STA_IF)
 station.active(True)
 
 print()
 print('scanning network')
-for i in range(10):
+stations_ssid = []
+while len(stations_ssid) == 0:
+    stations_ssid = list(str(net[0],'utf-8') for net in station.scan())
     print('.', end='')
-    time.sleep(0.2)
-print()
+    sleep(0.2)
+print('found networks:', ', '.join(stations_ssid))
 
-stations_ssid = list(str(net[0],'utf-8') for net in station.scan())
-print('found networks:', ', '.join(stations_ssid)) 
-
-accesspoint = network.WLAN(network.AP_IF)   
+accesspoint = network.WLAN(network.AP_IF)
 station = network.WLAN(network.STA_IF)
 station.active(True)
 
@@ -46,18 +45,17 @@ for net in networks:
         print('connected to wifi network {}'.format(ssid))
         accesspoint.active(False)
 
+        print('initializing: getting ip adress')
+        ip_adress = '0.0.0.0'
+        while ip_adress == '0.0.0.0':
+            sleep(0.2)
+            print('.', end='')
+            ip_adress = station.ifconfig()[0]
 
-print('initializing: getting ip adress')
-ip_adress = '0.0.0.0'
-while ip_adress == '0.0.0.0':
-    time.sleep(0.2)
-    print('.', end='')
-    ip_adress = station.ifconfig()[0]
-    
 print()
 ips = station.ifconfig()
 print(' IP adress {}\n netmask   {} \n gateway   {} \n dns       {}'.format(*ips))
-print()    
+print()
 print('starting main script')
 
 print('starting webrepl')

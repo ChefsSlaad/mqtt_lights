@@ -4,6 +4,9 @@ from time import time, sleep_ms, localtime
 from urandom import getrandbits
 from ujson import loads, dumps
 
+import sys
+sys.path.insert(1, '/home/marc/projects/mqtt_lights/new_modules')
+
 
 import mqtt_client
 

@@ -28,9 +28,10 @@ class temp_sensor():
     def read_temp(self):
         if time() > self.last_read + 0.750: # needs 750 ms between convert_temp and read_temp
             try:
-                self.last_read = time()
+                self.old_state = self.state
                 self.state = str(self._temp_sens.read_temp(self._temp_sens_dev))
                 self._temp_sens.convert_temp()
+                self.last_read = time()
             except Exception as err:
                 print('ran into an error', err)
 
@@ -38,5 +39,4 @@ class temp_sensor():
         pass
 
     def check_state(self):
-        self.old_state = self.state
         self.read_temp()

@@ -5,6 +5,10 @@ from urandom import getrandbits
 from ujson import loads, dumps
 from umqtt.simple import MQTTClient
 
+import sys
+sys.path.insert(1, '/home/marc/projects/mqtt_lights/new_modules')
+
+
 import logger
 
 recv_id     = 'test_reciever'

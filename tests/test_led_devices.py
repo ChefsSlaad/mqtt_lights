@@ -1,8 +1,11 @@
 import unittest
-import logger
 from ujson import loads, dumps
 from time import sleep_ms, time
 
+import sys
+sys.path.insert(1, '/home/marc/projects/mqtt_lights/new_modules')
+
+import logger
 import led_devices
 
 #machine module mocked and installed in ./micropython/lib
@@ -27,7 +30,7 @@ def rgb_to_pins(state):
 
 class led_tests(unittest.TestCase):
     def setUp(self):
-        self.single_led = led_devices.led_pwm(led_config)
+        self.single_led = led_devices.led_pwm_simple(led_config)
 
     def tearDown(self):
         pass

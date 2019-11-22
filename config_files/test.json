@@ -15,5 +15,19 @@
   "mqtt_server": {
     "server_adress": "10.0.0.10"
     },
+
+  "led_strip": {
+      "type": "led_strip",
+      "state_topic":   "test/test",
+      "command_topic": "test/test/set",
+      "pin": {
+          "red":   15,
+          "green": 13,
+          "blue":  12,
+          "white": 14
+          }
+      }
+
+
 }
 
