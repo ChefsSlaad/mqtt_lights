@@ -41,7 +41,7 @@ def load_devices(configuration):
         gc.collect()
         if isinstance(conf, dict) and "type" in conf.keys():
             if conf["type"] == "led":
-                from led_devices import led_pwm
+                from led_pwm import led_pwm
                 devices.append(led_pwm(conf))
                 topics.append(conf["command_topic"])
             elif conf["type"] == "led_strip":

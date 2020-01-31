@@ -9,7 +9,7 @@ esp8266_set  = "home/controller/woonkamer/servieskast"
 light_set   = "home/woonkamer/servieskast/set"
 light_topic = "home/woonkamer/servieskast"
 
-mqtt_server_ip   = '192.168.1.10'
+mqtt_server_ip   = '10.0.0.1'
 mqtt_server_port = 1883
 retries = 0 #mqtt reconnect retries
 max_retries = 86400 #time 

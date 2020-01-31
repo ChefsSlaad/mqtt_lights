@@ -1,31 +1,30 @@
 {
-  "name": "woonkamer_tafel",  
+  "name": "devicename",
 
   "network": [
-    { "ssid": "home", 
-      "password": "Garuda180" 
-    }, 
-    { "ssid": "marc", 
-      "password": "marcisdabomb" 
+    { "ssid": "home",
+      "password": "Garuda180"
+    },
+    { "ssid": "marc",
+      "password": "marcisdabomb"
+    },
+    { "ssid": "BonBini",
+      "password": "Rabootje"
     }
   ],
 
-  "valid_pins": [0, 2, 4, 5, 12, 13, 14, 15],
-
   "mqtt_server": {
-    "server_adress": "10.0.0.10"
+      "server_adress": "10.0.0.1",
     },
 
-  "led_strip": {
-      "type": "led_strip",
-      "state_topic": "home/woonkamer/tafel",
-      "command_topic": "home/woonkamer/tafel/set",
-      "pin": {
-          "red":   15,
-          "green": 13,
-          "blue":  12,
-          "white": 14
-          }
-      }
+  "led": {
+      "type": "led",
+      "state_topic":   "home/woonkamer/kerstboom",
+      "command_topic": "home/woonkamer/kerstboom/set",
+      "pin": 12,
+      "high_on": false
+
+    }
 }
+
 

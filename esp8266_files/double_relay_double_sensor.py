@@ -13,7 +13,7 @@ light1_topic = "home/woonkamer/boekenkast/light/light1"
 light2_set   = "home/woonkamer/boekenkast/light/light2/set"
 light2_topic = "home/woonkamer/boekenkast/light/light2"
 
-mqtt_server_ip   = '192.168.1.10'
+mqtt_server_ip   = '10.0.0.1'
 mqtt_server_port = 1883
 retries = 0 #mqtt reconnect retries
 max_retries = 84600 #one day

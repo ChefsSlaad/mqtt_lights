@@ -16,7 +16,7 @@
   "valid_pins": [0, 2, 4, 5, 12, 13, 14, 15],
 
   "mqtt_server": {
-    "server_adress": "10.0.0.10",
+    "server_adress": "10.0.0.1",
     "debug": false
     },
 
