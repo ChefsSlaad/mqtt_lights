@@ -146,9 +146,7 @@ F 3 "" H 5000 2400 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	5250 2000 5000 2000
-Wire Wire Line
-	5250 2100 5050 2100
+	5250 2000 5100 2000
 $Comp
 L power:+5V #PWR04
 U 1 1 5D599295
@@ -193,27 +191,6 @@ $EndComp
 Wire Wire Line
 	4550 2850 4550 3000
 $Comp
-L Device:R R3
-U 1 1 5D59CC82
-P 5050 2250
-F 0 "R3" H 5120 2296 50  0000 L CNN
-F 1 "470R" H 5120 2205 50  0000 L CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 4980 2250 50  0001 C CNN
-F 3 "~" H 5050 2250 50  0001 C CNN
-	1    5050 2250
-	1    0    0    -1  
-$EndComp
-Connection ~ 5050 2100
-Wire Wire Line
-	5050 2100 5000 2100
-Wire Wire Line
-	5250 2200 5250 2400
-Wire Wire Line
-	5050 2400 5000 2400
-Wire Wire Line
-	5050 2400 5250 2400
-Connection ~ 5050 2400
-$Comp
 L Device:R R2
 U 1 1 5D5AAE01
 P 5050 1250
@@ -225,10 +202,10 @@ F 3 "~" H 5050 1250 50  0001 C CNN
 	0    1    1    0   
 $EndComp
 $Comp
-L Device:R R4
+L Device:R R3
 U 1 1 5D5AF840
 P 5100 1700
-F 0 "R4" V 4893 1700 50  0000 C CNN
+F 0 "R3" V 4893 1700 50  0000 C CNN
 F 1 "100R" V 4984 1700 50  0000 C CNN
 F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 5030 1700 50  0001 C CNN
 F 3 "~" H 5100 1700 50  0001 C CNN
@@ -278,26 +255,15 @@ Text Label 4900 1250 2    50   ~ 0
 PIR_S
 Text Label 4950 1700 2    50   ~ 0
 MICRO_S
-Text Label 5000 2100 2    50   ~ 0
+Text Label 5050 2300 2    50   ~ 0
 TEMP_SENSOR_S
 $Comp
-L Connector:Conn_01x04_Male POWER1
-U 1 1 5D61DB8B
-P 7300 1600
-F 0 "POWER1" H 7408 1881 50  0000 C CNN
-F 1 "Conn_01x04_Male" H 7408 1790 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 7300 1600 50  0001 C CNN
-F 3 "~" H 7300 1600 50  0001 C CNN
-	1    7300 1600
-	1    0    0    -1  
-$EndComp
-$Comp
-L Connector:Conn_01x04_Male GND1
+L Connector:Conn_01x05_Male GND1
 U 1 1 5D61EEAB
 P 8400 1600
 F 0 "GND1" H 8508 1881 50  0000 C CNN
 F 1 "Conn_01x04_Male" H 8508 1790 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" H 8400 1600 50  0001 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical" H 8400 1600 50  0001 C CNN
 F 3 "~" H 8400 1600 50  0001 C CNN
 	1    8400 1600
 	1    0    0    -1  
@@ -396,56 +362,53 @@ Wire Wire Line
 	7650 1650 7650 1700
 Text Label 7700 1650 0    50   ~ 0
 POWER
-Text Label 7400 2950 0    50   ~ 0
+Text Label 7350 3050 0    50   ~ 0
 GPIO12_S
-Text Label 7400 3050 0    50   ~ 0
+Text Label 7350 2950 0    50   ~ 0
 GPIO13_S
-Text Label 7400 3150 0    50   ~ 0
+Text Label 7350 3150 0    50   ~ 0
 GPIO14_S
-Text Label 7400 3250 0    50   ~ 0
+Text Label 7350 3250 0    50   ~ 0
 GPIO16_S
 $Comp
 L Connector:Conn_01x05_Male SIGNAL1
 U 1 1 5D620461
-P 7200 3050
-F 0 "SIGNAL1" H 7308 3331 50  0000 C CNN
-F 1 "Conn_01x05_Male" H 7308 3240 50  0000 C CNN
-F 2 "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical" H 7200 3050 50  0001 C CNN
-F 3 "~" H 7200 3050 50  0001 C CNN
-	1    7200 3050
+P 7150 3150
+F 0 "SIGNAL1" V 7100 3150 50  0000 C CNN
+F 1 "Conn_01x05_Male" V 6950 3150 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical" H 7150 3150 50  0001 C CNN
+F 3 "~" H 7150 3150 50  0001 C CNN
+	1    7150 3150
 	1    0    0    -1  
 $EndComp
-Text Label 7750 2850 0    50   ~ 0
+Text Label 7700 3350 0    50   ~ 0
 ANALOG_S
 $Comp
 L Device:R R5
 U 1 1 5D638F6D
-P 7550 2700
-F 0 "R5" V 7343 2700 50  0000 C CNN
-F 1 "1M" V 7434 2700 50  0000 C CNN
-F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 7480 2700 50  0001 C CNN
-F 3 "~" H 7550 2700 50  0001 C CNN
-	1    7550 2700
+P 7500 3500
+F 0 "R5" V 7293 3500 50  0000 C CNN
+F 1 "1M" V 7384 3500 50  0000 C CNN
+F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 7430 3500 50  0001 C CNN
+F 3 "~" H 7500 3500 50  0001 C CNN
+	1    7500 3500
 	0    1    1    0   
 $EndComp
 $Comp
 L power:GND #PWR014
 U 1 1 5D63CC22
-P 7750 2700
-F 0 "#PWR014" H 7750 2450 50  0001 C CNN
-F 1 "GND" V 7755 2572 50  0000 R CNN
-F 2 "" H 7750 2700 50  0001 C CNN
-F 3 "" H 7750 2700 50  0001 C CNN
-	1    7750 2700
+P 7650 3500
+F 0 "#PWR014" H 7650 3250 50  0001 C CNN
+F 1 "GND" V 7655 3372 50  0000 R CNN
+F 2 "" H 7650 3500 50  0001 C CNN
+F 3 "" H 7650 3500 50  0001 C CNN
+	1    7650 3500
 	0    -1   -1   0   
 $EndComp
 Wire Wire Line
-	7750 2700 7700 2700
+	7350 3350 7350 3500
 Wire Wire Line
-	7400 2700 7400 2850
-Connection ~ 7400 2850
-Wire Wire Line
-	7400 2850 7750 2850
+	7350 3350 7700 3350
 $Comp
 L Device:CP C1
 U 1 1 5D64669C
@@ -534,14 +497,61 @@ $EndComp
 $Comp
 L Connector:Conn_01x03_Female TEMP_SENSOR1
 U 1 1 5D5C5E39
-P 5450 2100
-F 0 "TEMP_SENSOR1" H 5478 2126 50  0000 L CNN
-F 1 "Conn_01x03_Female" H 5478 2035 50  0000 L CNN
-F 2 "Connector_JST:JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical" H 5450 2100 50  0001 C CNN
-F 3 "~" H 5450 2100 50  0001 C CNN
-	1    5450 2100
+P 5500 2300
+F 0 "TEMP_SENSOR1" H 5528 2326 50  0000 L CNN
+F 1 "Conn_01x03_Female" H 5528 2235 50  0000 L CNN
+F 2 "Connector_JST:JST_XH_B3B-XH-A_1x03_P2.50mm_Vertical" H 5500 2300 50  0001 C CNN
+F 3 "~" H 5500 2300 50  0001 C CNN
+	1    5500 2300
 	1    0    0    -1  
 $EndComp
 Text Label 2100 1600 0    50   ~ 0
 ANALOG_S
+Wire Wire Line
+	5050 2300 5100 2300
+Wire Wire Line
+	5300 2400 5000 2400
+Wire Wire Line
+	5300 2200 5250 2200
+Wire Wire Line
+	5250 2200 5250 2000
+$Comp
+L Device:R R4
+U 1 1 5E45876E
+P 5100 2150
+F 0 "R4" H 5170 2196 50  0000 L CNN
+F 1 "4.7k" H 5170 2105 50  0000 L CNN
+F 2 "Resistor_THT:R_Axial_DIN0207_L6.3mm_D2.5mm_P7.62mm_Horizontal" V 5030 2150 50  0001 C CNN
+F 3 "~" H 5100 2150 50  0001 C CNN
+	1    5100 2150
+	1    0    0    -1  
+$EndComp
+Connection ~ 5100 2000
+Wire Wire Line
+	5100 2000 5000 2000
+Connection ~ 5100 2300
+Wire Wire Line
+	5100 2300 5300 2300
+Connection ~ 7350 3350
+$Comp
+L Connector:Conn_01x05_Male POWER1
+U 1 1 5D61DB8B
+P 7300 1600
+F 0 "POWER1" H 7408 1881 50  0000 C CNN
+F 1 "Conn_01x04_Male" H 7408 1790 50  0000 C CNN
+F 2 "Connector_PinHeader_2.54mm:PinHeader_1x05_P2.54mm_Vertical" H 7300 1600 50  0001 C CNN
+F 3 "~" H 7300 1600 50  0001 C CNN
+	1    7300 1600
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7500 1400 7650 1400
+Wire Wire Line
+	7650 1400 7650 1500
+Connection ~ 7650 1500
+Wire Wire Line
+	8750 1500 8750 1400
+Wire Wire Line
+	8750 1400 8600 1400
+Connection ~ 8750 1500
 $EndSCHEMATC
