@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name tree_lights)(type KiCad)(uri ${KIPRJMOD}/tree_lights.pretty)(options "")(descr ""))
+  (lib (name d1_mini_small_footprint)(type KiCad)(uri ${KIPRJMOD}/d1_mini_small_footprint.pretty)(options "")(descr ""))
+)

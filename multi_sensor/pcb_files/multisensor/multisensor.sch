@@ -239,17 +239,17 @@ Text Label 2100 1800 0    50   ~ 0
 TEMP_SENSOR_S
 Text Label 2100 1900 0    50   ~ 0
 PIR_S
-Text Label 2100 2000 0    50   ~ 0
+Text Label 2100 2300 0    50   ~ 0
 NEOPIXEL_S
 Text Label 2100 2100 0    50   ~ 0
 GPIO2_S
 Text Label 2100 2200 0    50   ~ 0
 GPIO14_S
-Text Label 2100 2300 0    50   ~ 0
-GPIO12_S
-Text Label 2100 2400 0    50   ~ 0
-GPIO13_S
+Text Label 2100 2000 0    50   ~ 0
+GPIO0_S
 Text Label 2100 2500 0    50   ~ 0
+GPIO15_S
+Text Label 2100 2400 0    50   ~ 0
 MICRO_S
 Text Label 4900 1250 2    50   ~ 0
 PIR_S
@@ -363,9 +363,9 @@ Wire Wire Line
 Text Label 7700 1650 0    50   ~ 0
 POWER
 Text Label 7350 3050 0    50   ~ 0
-GPIO12_S
+GPIO0_S
 Text Label 7350 2950 0    50   ~ 0
-GPIO13_S
+GPIO15_S
 Text Label 7350 3150 0    50   ~ 0
 GPIO14_S
 Text Label 7350 3250 0    50   ~ 0
@@ -423,7 +423,6 @@ $EndComp
 NoConn ~ 1300 1700
 NoConn ~ 1300 2000
 NoConn ~ 1300 2100
-NoConn ~ 2100 2100
 $Comp
 L power:PWR_FLAG #FLG01
 U 1 1 5D64DE9E
@@ -554,4 +553,5 @@ Wire Wire Line
 Wire Wire Line
 	8750 1400 8600 1400
 Connection ~ 8750 1500
+NoConn ~ 2100 2100
 $EndSCHEMATC
