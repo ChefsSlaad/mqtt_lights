@@ -1,4 +1,4 @@
-update=vr 06 sep 2019 21:59:17 CEST
+update=vr 08 mei 2020 08:35:28 CEST
 version=1
 last_client=kicad
 [general]
@@ -20,12 +20,12 @@ SubpartIdSeparator=0
 SubpartFirstId=65
 NetFmtName=Pcbnew
 SpiceAjustPassiveValues=0
-LabSize=50
+LabSize=118
 ERC_TestSimilarLabels=1
 [pcbnew]
 version=1
 PageLayoutDescrFile=
-LastNetListRead=powered_multisensor.net
+LastNetListRead=powered multisensor.net
 CopperLayerCount=2
 BoardThickness=1.6
 AllowMicroVias=0
@@ -39,9 +39,10 @@ MinMicroViaDiameter=0.2
 MinMicroViaDrill=0.09999999999999999
 MinHoleToHole=0.25
 TrackWidth1=0.25
-TrackWidth2=1.5
-TrackWidth3=2.2
-TrackWidth4=3
+TrackWidth2=0.25
+TrackWidth3=0.5
+TrackWidth4=1.5
+TrackWidth5=2.5
 ViaDiameter1=0.8
 ViaDrill1=0.4
 dPairWidth1=0.2

@@ -1,4 +1,0 @@
-(fp_lib_table
-  (lib (name DCDC_MINI-360)(type KiCad)(uri ${KIPRJMOD}/DCDC_MINI-360.pretty)(options "")(descr ""))
-  (lib (name DCDC_MINI_360)(type KiCad)(uri ${KIPRJMOD}/DCDC_MINI-360.pretty/DCDC_MINI_360.pretty)(options "")(descr ""))
-)
