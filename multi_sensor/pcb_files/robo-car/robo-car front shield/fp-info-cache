@@ -1,4 +1,4 @@
-16922561404196179
+16933705798712179
 Battery
 BatteryHolder_Bulgin_BX0036_1xC
 Bulgin Battery Holder, BX0036, Battery Type C (https://www.bulgin.com/products/pub/media/bulgin/data/Battery_holders.pdf)
@@ -75257,6 +75257,20 @@ varistor SIOV
 2
 2
 robo-car
+LM2596S
+
+
+0
+4
+4
+robo-car
+linefollower
+
+
+0
+4
+4
+robo-car
 lm2596-custom
 
 
@@ -75269,4 +75283,39 @@ neopixel_pcb
 
 0
 6
-4
+6
+robo-car
+restoring polyfuse
+
+
+0
+2
+2
+robo-car
+rocker switch 8.5x3.5mm 2.54piych
+
+
+0
+3
+3
+robo-car
+sensor_logo_large
+
+
+0
+0
+0
+robo-car
+sensor_logo_small
+
+
+0
+0
+0
+robo-car
+slow_blow_polyfuse
+
+
+0
+2
+2

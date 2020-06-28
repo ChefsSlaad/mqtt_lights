@@ -1,0 +1,3 @@
+(fp_lib_table
+  (lib (name robo-car)(type KiCad)(uri /home/marc/projects/mqtt_lights/multi_sensor/pcb_files/robo-car/robo-car)(options "")(descr ""))
+)
